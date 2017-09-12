@@ -7,7 +7,7 @@
     (eval-and-compile
 
       (setv ; TODO: these could be constructed by some lambda-term-generator macro
-          forms ["CONST" "IDENT" "LET" "LET*" "TRUE" "FALSE" "REPLACE"
+          forms ["CONST" "IDENT" "LET" "LET*" "TRUE" "FALSE"
                  "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL"
                  "ZERO" "ZERO?" "is_ZERO" "NUM"
                  "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
@@ -34,10 +34,6 @@
                (macro-expand (read-str (% "(%s)" expr)))
                ; return other forms as they are
                expr))))
-
-    ; unnamed variable/constant, doesn't take any arguments, will return given "static" value
-    ; (L , a) -> a
-    (defmacro CONST  [&rest args] `(~lambdachr ~separator ~@args))
 		; named variables. multiple variables can be associated first, then the last expression is the body
 		; (LET a 1 b 2 (a b)) ->
     ; (L a b p , (p a b) 1 2 (L a b , (a b))) -> (1 2)
@@ -62,6 +58,9 @@
       (for [[x y] (zip a b)]
         (setv expr `(LET ~x ~y ~expr)))
       expr)
+    ; unnamed variable/constant, doesn't take any arguments, will return given "static" value
+    ; (L , a) -> a
+    (defmacro CONST  [&rest args] `(~lambdachr ~separator ~@args))
     ; identity, return passed argument as it is
     (defmacro IDENT  [&rest args] `(~lambdachr a ~separator a ~@args))
     ; booleans
@@ -69,12 +68,6 @@
     (defmacro TRUE   [&rest args] `(~lambdachr a b ~separator a ~@args))
     ; false, take two arguments, return the second and omit the first
     (defmacro FALSE  [&rest args] `(~lambdachr a b ~separator b ~@args))
-    ; replace next argument with false, take one argument, but return a static FALSE value
-    ; if two arguments are given, then FALSE will return the latter, in a way this is similar
-    ; giving two arguments to FALSE
-    ;(defmacro REPLACE [&rest args] `(L a , (L a b , b) ~@args))
-    ;(defmacro REPLACE [&rest args] `(~lambdachr a ~separator FALSE ~@args))
-    (defmacro REPLACE [&rest args] `(~lambdachr a ~separator ~@args))
     ; lists
     (defmacro NIL    [&rest args] `(FALSE ~@args))
     (defmacro PAIR   [&rest args] `(~lambdachr a b s ~separator (s a b) ~@args))
@@ -86,8 +79,7 @@
     ; zero things
     (defmacro ZERO  [&rest args] `(FALSE ~@args))
     ;(defmacro ZERO? [&rest args] `(~lambdachr n , (n (L a , (L a b , b)) (L a b , a)) ~@args))
-    ;(defmacro ZERO? [&rest args] `(~lambdachr n ~separator (n REPLACE TRUE) ~@args))
-    (defmacro ZERO? [&rest args] `(~lambdachr n ~separator (n (REPLACE FALSE) TRUE) ~@args))
+    (defmacro ZERO? [&rest args] `(~lambdachr n ~separator (n (L a , FALSE) TRUE) ~@args))
     ; logic
     (defmacro COND  [&rest args] `(~lambdachr p a b ~separator (p a b) ~@args))
     (defmacro AND   [&rest args] `(~lambdachr a b ~separator (a b FALSE) ~@args))
