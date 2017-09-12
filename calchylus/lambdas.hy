@@ -180,7 +180,7 @@
               ; rest of the free arguments that are not in params
               free (list (drop (len args) vals)))
         ; substitute bound arguments
-        ;(print 'before-substitute-body: (pprint body))
+        ;(print 'before-substitute-body: (pprint body) free)
         (for [[a b] (get p "params")]
           (setv body (substitute a b body)))
         ;(print 'after-substitute-body: (pprint body))
@@ -191,13 +191,13 @@
         (if (coll? body)
             (if (L? body)
                 (do (setv body (extend body free))
-                    (setv pp (extract-parts body)
-                          vals (get pp "vals")
-                          args (get pp "args"))
+                    (setv pp (extract-parts body))
                     ; if evaluated expression has no further values, but also
                     ; it is not a constant, render final form
-                    (if (and (empty? vals) (not (empty? args)))
-                        (human-readable (if (empty? free) body expr))
+                    (if (and (empty? (get pp "vals")) (not (empty? (get pp "args"))))
+                        (if (and (empty? free) (not (empty? args)) (empty? vals))
+                            (human-readable expr)
+                            (human-readable (if (empty? free) body expr)))
                         ; else evaluate again but using helper because we know
                         ; expression is lambda form
                         (beta_reduction* body)))
@@ -216,7 +216,7 @@
                     (extend [body] free)
                   body)
                 expr)
-              body))))
+              (if free (extend [body] free) body)))))
 
       ; main form beta / eta reduction steps
       (defn beta-reduction [expr]
@@ -256,7 +256,7 @@
             (print "Recursion error occured for lambda expression: " (pprint expr))))))
 
     ; lambda application sharp macro
-    (defsharp Ÿ [expr] `(~lambdachr , ~expr))
+    (defsharp Ÿ [expr] `(~lambdachr ~separator ~expr))
 
     (if ~macros
       (do
