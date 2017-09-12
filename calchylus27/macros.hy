@@ -7,7 +7,7 @@
     (eval-and-compile
 
       (setv ; TODO: these could be constructed by some lambda-term-generator macro
-          forms ["CONST" "IDENT" "LET" "LETS" "TRUE" "FALSE" "REPLACE" "OMIT"
+          forms ["CONST" "IDENT" "LET" "LET*" "TRUE" "FALSE" "REPLACE"
                  "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL"
                  "ZERO" "ZERO?" "is_ZERO" "NUM"
                  "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
@@ -35,12 +35,33 @@
                ; return other forms as they are
                expr))))
 
-    ; unnamed constant, doesn't take any arguments, will return given "static" value
+    ; unnamed variable/constant, doesn't take any arguments, will return given "static" value
+    ; (L , a) -> a
     (defmacro CONST  [&rest args] `(~lambdachr ~separator ~@args))
-		; named constant, doesn't take any arguments, will return given "static" value
-		(defmacro LET    [x &rest args] `(~lambdachr ~x ~separator ~@args))
-		; named constant, doesn't take any arguments, will return given "static" value
-		(defmacro LETS   [&rest args] `(~lambdachr ~x ~separator ~@args))
+		; named variables. multiple variables can be associated first, then the last expression is the body
+		; (LET a 1 b 2 (a b)) ->
+    ; (L a b p , (p a b) 1 2 (L a b , (a b))) -> (1 2)
+    (defmacro LET [&rest args]
+      ; all odd parameters except the last are argument names
+      (setv x (if args (cut (cut args 0 (len args) 2) 0 -1) ())
+            y (if args (cut args 1 (len args) 2) ())
+            z (if args (last args) ()))
+      `(L ~@x p , (p ~@x) ~@y (L ~@x , ~z)))
+    ; same as LET but preceding variables are evaluated becore using on the body so that
+    ; variables associated previously can be used on later variables
+    ; (LET* a 1 b a (a b)) ->
+    ; (LET a 1 (LET b a (a b))) -> (1 1)
+    (defmacro LET* [&rest args]
+      (setv ; the last parameter in the expression is the body
+            expr `(LET ~(if args (last args) ()))
+            ; argument names are all odd except the last paramter
+            a (if args (cut (cut args 0 (len args) 2) 0 -1) ())
+            ; values are all even paramters
+            b (if args (cut args 1 (len args) 2) ()))
+      ; create nested LET clauses
+      (for [[x y] (zip a b)]
+        (setv expr `(LET ~x ~y ~expr)))
+      expr)
     ; identity, return passed argument as it is
     (defmacro IDENT  [&rest args] `(~lambdachr a ~separator a ~@args))
     ; booleans
@@ -51,10 +72,9 @@
     ; replace next argument with false, take one argument, but return a static FALSE value
     ; if two arguments are given, then FALSE will return the latter, in a way this is similar
     ; giving two arguments to FALSE
-    (defmacro REPLACE [&rest args] `(~lambdachr a ~separator FALSE ~@args))
     ;(defmacro REPLACE [&rest args] `(L a , (L a b , b) ~@args))
-    ; omit next
-    (defmacro OMIT   [&rest args] `(~lambdachr a ~separator b ~@args))
+    ;(defmacro REPLACE [&rest args] `(~lambdachr a ~separator FALSE ~@args))
+    (defmacro REPLACE [&rest args] `(~lambdachr a ~separator ~@args))
     ; lists
     (defmacro NIL    [&rest args] `(FALSE ~@args))
     (defmacro PAIR   [&rest args] `(~lambdachr a b s ~separator (s a b) ~@args))
@@ -66,7 +86,8 @@
     ; zero things
     (defmacro ZERO  [&rest args] `(FALSE ~@args))
     ;(defmacro ZERO? [&rest args] `(~lambdachr n , (n (L a , (L a b , b)) (L a b , a)) ~@args))
-    (defmacro ZERO? [&rest args] `(~lambdachr n ~separator (n REPLACE TRUE) ~@args))
+    ;(defmacro ZERO? [&rest args] `(~lambdachr n ~separator (n REPLACE TRUE) ~@args))
+    (defmacro ZERO? [&rest args] `(~lambdachr n ~separator (n (REPLACE FALSE) TRUE) ~@args))
     ; logic
     (defmacro COND  [&rest args] `(~lambdachr p a b ~separator (p a b) ~@args))
     (defmacro AND   [&rest args] `(~lambdachr a b ~separator (a b FALSE) ~@args))

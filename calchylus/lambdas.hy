@@ -76,7 +76,7 @@
 
       ; make lambda expression from body and other parts
       (defn build-lambda [body &optional [args []] [vals []]]
-        (hy.HyExpression (extend [lambdachr] args [separator] body vals)))
+        (extend [lambdachr] args [separator] body vals))
 
       ; get lambda expression parts
       ; body: (x x), args: (x), values (y), and params: ([x y])
@@ -260,7 +260,7 @@
 
     (if ~macros
       (do
+         ; for some reason macros will be included even if this block
+         ; is not reached runtime...
          (require [calchylus.macros [*]])
          (init-macros ~lambdachr ~separator)))))
-
-;(init-system L ,)
