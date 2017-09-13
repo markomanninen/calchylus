@@ -100,3 +100,5 @@ ENV/
 # mypy
 .mypy_cache/
 Lambda+Calchylus+tests.ipynb
+
+MANIFEST
