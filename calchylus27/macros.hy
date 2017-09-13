@@ -149,20 +149,23 @@
     (defmacro YCOMB [&rest args] `(~lambdachr f ~separator (~lambdachr x ~separator (f (x x)) (~lambdachr x ~separator (f (x x)))) ~@args))
     ; some math functions
     ; summation function
-    ;(defmacro SUMMATION [&rest args]
-    ;  `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (ZERO? n) ZERO (SUM n (f f (PRED n))))) x) ~@args))
     (defmacro SUMMATION [&rest args]
       `(~lambdachr x ~separator
-        (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ZERO (SUM n (f (PRED n))))) x) ~@args))
+		    (SELF (~lambdachr f n ~separator (COND (ZERO? n) ZERO (SUM n (f f (PRED n))))) x) ~@args))
+    ;(defmacro SUMMATION [&rest args]
+    ;  `(~lambdachr x ~separator
+    ;    (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ZERO (SUM n (f (PRED n))))) x) ~@args))
     ; factorial function
-    ;(defmacro FACTORIAL [&rest args]
-    ;  `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (ZERO? n) ONE (PROD n (f f (PRED n))))) x) ~@args))
     (defmacro FACTORIAL [&rest args]
       `(~lambdachr x ~separator
-        (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ONE (PROD (f (PRED n)) n))) x) ~@args))
+				(SELF (~lambdachr f n ~separator (COND (ZERO? n) ONE (PROD n (f f (PRED n))))) x) ~@args))
+    ;(defmacro FACTORIAL [&rest args]
+    ;  `(~lambdachr x ~separator
+    ;    (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ONE (PROD (f (PRED n)) n))) x) ~@args))
     ; F/f fibonacci function
-    ;(defmacro FIBONACCI [&rest args]
-    ;  `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (ZERO? n) ONE (SUM (f f (PRED n)) (f f (PRED (PRED n)))))) x) ~@args))
     (defmacro FIBONACCI [&rest args]
       `(~lambdachr x ~separator
-        (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ONE (SUM (f (PRED n)) (f (PRED (PRED n)))))) x) ~@args))))
+				(SELF (~lambdachr f n ~separator (COND (ZERO? n) ONE (SUM (f f (PRED n)) (f f (PRED (PRED n)))))) x) ~@args))))
+    ;(defmacro FIBONACCI [&rest args]
+    ;  `(~lambdachr x ~separator
+    ;    (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ONE (SUM (f (PRED n)) (f (PRED (PRED n)))))) x) ~@args))))
