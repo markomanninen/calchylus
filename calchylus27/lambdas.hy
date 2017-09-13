@@ -25,6 +25,8 @@
 ; Licence: MIT
 ;----------------------------------------------
 
+(import hy)
+
 (defmacro with-alpha-conversion-and-macros [lambdachr separator]
    `(init-system ~lambdachr ~separator True True))
 
@@ -133,7 +135,7 @@
         (if-not (coll? expr) expr
           (do
             (setv f (first expr))
-            (if (L? f) (setv expr (extend ((type f) (.copy f)) (tuple (rest expr)))))
+            (if (L? f) (setv expr (extend f (tuple (rest expr)))))
             ((type expr) (map shift-arguments expr)))))
 
       ;
@@ -255,11 +257,11 @@
       (if-not (empty? expr)
         (try
           (evaluate-lambda-expression (if ~macros (macro-expand expr) expr))
-          (except [e [RecursionError hy.errors.HyMacroExpansionError]]
+          (except [e [RuntimeError hy.errors.HyMacroExpansionError]]
             (print "Recursion error occured for lambda expression: " (pprint expr))))))
 
     ; lambda application sharp macro
-    (defsharp Ÿ [expr] `(~lambdachr ~separator ~expr))
+    (defsharp Y [expr] `(~lambdachr ~separator ~expr))
 
     (if ~macros
       (do
