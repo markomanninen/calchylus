@@ -1,6 +1,6 @@
 
 Quick start
------------
+===========
 
 .. code-block:: bash
 
@@ -20,8 +20,9 @@ Quick start
 Explanation
 -----------
 
-Python 2.7 or 3.6 and greater are required. Install Hy language interpreter and
-``calchylus`` module by using ``pip`` Python package management tool:
+For Windows, Linux, and MacOS Python 2.7 or 3.6 and greater are required.
+Install Hy language interpreter and ``calchylus`` module by using ``pip``
+Python package management tool:
 
 .. code-block:: bash
 

@@ -1,6 +1,6 @@
 
 History
--------
+=======
 
 Lambda calculus was invented by Alonzo Church in the 1930s. That happened
 actually a decade before modern electrically powered computers were created.
@@ -66,7 +66,8 @@ will bring practicer to the deep foundations of programming language. That is,
 in which order to evaluate arguments and functions and how to deal with argument
 name collisions.
 
-### Evaluation
+Evaluation
+----------
 
 Next we need some evaluation rules to call the function with given input and
 give the result. These rules or procedures are called:
