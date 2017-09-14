@@ -2,26 +2,25 @@
 Calchylus - Lambda calculus with Hy
 =====================================
 
-`Calchylus` is a [Hy](http://docs.hylang.org) module that is used to evaluate,
-and furthermore, to understand the basics of Lambda calculus (also written as
-λ-calculus).
+``Calchylus`` is a `Hy <http://docs.hylang.org>`__ module that is used to
+evaluate, and furthermore, to understand the basics of Lambda calculus
+(also written as λ-calculus).
 
-<blockquote>
-  <a href="https://en.wikipedia.org/wiki/Lambda_calculus">Lambda calculus</a>
-  is a formal system in mathematical logic for expressing computation that is
-  based on function abstraction and application using variable binding and
-  substitution. -<i>wikipedia.org</i>
-</blockquote>
+.. note::  `Lambda calculus <https://en.wikipedia.org/wiki/Lambda_calculus>`__
+           is a formal system in mathematical logic for expressing computation that is
+           based on function abstraction and application using variable binding and
+           substitution. -wikipedia.org
+
 
 Quick start
 -----------
 
-.. code:: unix
+.. code-block:: unix
 
 	$ pip install hy calchylus
 	$ hy
 
-.. code:: lisp
+.. code-block:: lisp
 
 	> (require [calchylus.lambdas [*]])
 	> (with-alpha-conversion-and-macros L ,)
@@ -35,7 +34,7 @@ Explanation
 -----------
 
 Python 2.7 or 3.6 and greater are required. Install Hy language interpreter and
-`calchylus` module by using `pip` Python package management tool:
+``calchylus`` module by using ``pip`` Python package management tool:
 
 .. code:: unix
 
@@ -47,8 +46,8 @@ Open Hy since `Calchylus` is written as Hy macros:
 
 	$ hy
 
-Import Lambda calculus macros and define function indicator letter `L` and
-argument-body separator character `,`:
+Import Lambda calculus macros and define function indicator letter ``L`` and
+argument-body separator character ``,``:
 
 .. code:: lisp
 
@@ -116,36 +115,38 @@ to "imitate" multiary functions.
 Two other syntactic rules must be introduced to be able to write and evaluate
 Lambda applications:
 
-1. Lambda function indicator, that is usually a Greek lambda letter: `𝜆`
-2. Lambda function argument and body separator, that is usually a dot: `.`
+1. Lambda function indicator, that is usually a Greek lambda letter: ``𝜆``
+2. Lambda function argument and body separator, that is usually a dot: ``.``
 
 Optional:
 
 3. Parentheses to group and indicate the Lambda function bodies and variables.
-The most convenient way is to use left `(` and right `)` parentheses for this.
+The most convenient way is to use left ``(`` and right ``)`` parentheses for this.
 Other purpose of using parentheses is to visually make Lambda expressions easier
 to read and avoid arbitrarities in Lambda expressions.
 4. Space character to indicate separate variables. This is optional, because in
 the simplest form single characters are used to denote variables. But it is easy
 to see that this is quite limiting for practical purposes.
 
-All seven rules are implemented in the `Calchylus` module so that for example
-the very basic Lambda calculus application `𝜆x.x y` becomes
-`(𝜆 x . x y)` in `Calchylus` notation. Infact, function indicator and
-separator characters can be freely defined in `Calchylus`. In the most of the
-examples we will use `L` and `,` because it will be easier to type `L` from the
-keyboard. Using comma rather than dot comes from the Hy programming language
-environment restrictions, because dot is reserved for cons in list processing.
+All seven rules are implemented in the ``Calchylus`` module so that for example
+the very basic Lambda calculus application ``𝜆x.x y`` becomes
+``(𝜆 x . x y)`` in ``calchylus`` notation. Infact, function indicator and
+separator characters can be freely defined in ``calchylus``. In the most of the
+examples we will use ``L`` and ``,`` because it will be easier to type ``L``
+from the keyboard. Using comma rather than dot comes from the Hy programming
+language environment restrictions, because dot is reserved for cons in list
+processing.
 
 Let us strip down the former expression and show how all rules are taking place
 in it.
 
-In `(L x , x y)`, `L` is the Lambda function indicator and parentheses `()`
-indicate the whole application that should be evaluated. `x` before the
-separator `,` is the function argument. `x` after the separator is the function
-body or just the Lambda term, as it is more conventionally called. Finally `y`
-is the value for the function, thus we have a full application here, rather
-than just an abstraction. Abstraction would, on the other hand be: `(L x , x)`.
+In ``(L x , x y)``, ``L`` is the Lambda function indicator and parentheses
+``()`` indicate the whole application that should be evaluated. ``x`` before the
+separator ``,`` is the function argument. ``x`` after the separator is the
+function body or just the Lambda term, as it is more conventionally called.
+Finally ``y``is the value for the function, thus we have a full application
+here, rather than just an abstraction. Abstraction would, on the other hand be:
+``(L x , x)``.
 
 Because these rules are notable in any functional and Lisp like language, there
 is a great temptation to implement Lambda calculus evaluator as a native
