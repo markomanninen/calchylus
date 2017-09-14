@@ -1,6 +1,6 @@
 
 Calchylus - Lambda calculus with Hy
-=====================================
+===================================
 
 ``Calchylus`` is a `Hy <http://docs.hylang.org>`__ module that is used to
 evaluate, and furthermore, to understand the basics of Lambda calculus

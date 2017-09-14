@@ -1,0 +1,6 @@
+- v0.1.1 second pre-release
+  - IMP implication logic macro added
+  - ADD removed as a redundant with SUCC
+
+- v0.1.0 first pre-release
+  - initial code
