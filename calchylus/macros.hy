@@ -9,11 +9,11 @@
       (setv ; TODO: these could be constructed by some lambda-term-generator macro
           forms ["CONST" "IDENT" "LET" "LET*" "TRUE" "FALSE"
                  "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL"
-                 "ZERO" "ZERO?" "is_ZERO" "NUM"
-                 "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
-                 "COND" "AND" "OR" "NOT" "XOR"
-                 "ADD" "PRED" "SUCC" "EXP" "SUM" "PROD" "SUB"
-                 "EQ?" "is_EQ" "LEQ?" "is_LEQ" "SELF" "YCOMB"
+                 "NUM" "ZERO" "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
+                 "ZERO?" "is_ZERO" "EQ?" "is_EQ" "LEQ?" "is_LEQ"
+                 "COND" "AND" "OR" "NOT" "XOR" "IMP"
+                 "SUCC" "PRED"  "SUM" "SUB" "PROD" "EXP"
+                 "SELF" "YCOMB"
                  "SUMMATION" "FACTORIAL" "FIBONACCI"])
 
      ; is expr(ession) a suitable macro form?
@@ -89,6 +89,7 @@
     (defmacro NOT   [&rest args] `(~lambdachr p ~separator (p FALSE TRUE) ~@args))
     ;(defmacro NOT2  [&rest args] `(~lambdachr p a b , (p b a) ~@args))?
     (defmacro XOR   [&rest args] `(~lambdachr a b ~separator (a (NOT b) b) ~@args))
+    (defmacro IMP   [&rest args] `(~lambdachr a b ~separator (OR (NOT a) b) ~@args))
     ; church number generator: (NUM 3) ; -> (L x y , (x (x (x y))))
     ; launch application: (NUM 3 a b) ; -> (a (a (a b)))
     ; (defmacro NUM [n &rest args]
@@ -123,18 +124,16 @@
     ;(defmacro TEN   [&rest args] `(L x y , (x (x (x (x (x (x (x (x (x (x y)))))))))) ~@args))
     (defmacro TEN   [&rest args] `(NUM 10 ~@args))
     ; arithmetics
-    ; add one, increase by one
-    (defmacro ADD   [&rest args] `(~lambdachr n x y ~separator (n x (x y)) ~@args))
     ; next / successor = INC = ADD
     (defmacro SUCC  [&rest args] `(~lambdachr n x y ~separator (x (n x y)) ~@args))
     ; previous / predecessor = DEC
     ;(defmacro PRED  [&rest args] `(L n x y , (n (L g h , (h (g x))) (L x , y) (L u , u)) ~@args))
     (defmacro PRED  [&rest args] `(~lambdachr n x y ~separator (n (~lambdachr g h ~separator (h (g x))) (~lambdachr x ~separator y) IDENT) ~@args))
-    ; substract two numbers from each other
-    (defmacro SUB   [&rest args] `(~lambdachr m n ~separator (m PRED n) ~@args))
     ; sum two numbers together
     ;(defmacro SUM  [&rest args] `(L m n , (m SUCC n) ~@args))
     (defmacro SUM   [&rest args] `(~lambdachr m n x y ~separator (m x (n x y)) ~@args))
+    ; substract two numbers from each other
+    (defmacro SUB   [&rest args] `(~lambdachr m n ~separator (m PRED n) ~@args))
     ; multiplication, product of two numbers
     (defmacro PROD  [&rest args] `(~lambdachr m n x y ~separator (m (n x) y) ~@args))
     ; exponent x^y
