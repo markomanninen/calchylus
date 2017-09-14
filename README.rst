@@ -6,28 +6,28 @@ Calchylus - Lambda calculus with Hy
 evaluate, and furthermore, to understand the basics of Lambda calculus
 (also written as λ-calculus).
 
-.. note::  `Lambda calculus <https://en.wikipedia.org/wiki/Lambda_calculus>`__
-           is a formal system in mathematical logic for expressing computation that is
-           based on function abstraction and application using variable binding and
-           substitution. -wikipedia.org
+	`Lambda calculus <https://en.wikipedia.org/wiki/Lambda_calculus>`__ is a
+	formal system in mathematical logic for expressing computation that is
+    based on function abstraction and application using variable binding and
+    substitution. -*wikipedia.org*
 
 
 Quick start
 -----------
 
-.. code-block:: unix
+.. code-block:: bash
 
 	$ pip install hy calchylus
 	$ hy
 
-.. code-block:: lisp
+.. code-block:: hylang
 
-	> (require [calchylus.lambdas [*]])
-	> (with-alpha-conversion-and-macros L ,)
-	> (L x y , (x (x (x (x (x y))))) a b)
-	(a (a (a (a (a b)))))
-	> (FIBONACCI FIVE)
-	(x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
+	(require [calchylus.lambdas [*]])
+	(with-alpha-conversion-and-macros L ,)
+	(L x y , (x (x (x (x (x y))))) a b)
+	; (a (a (a (a (a b)))))
+	(FIBONACCI FIVE)
+	; (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
 
 Explanation
@@ -36,40 +36,40 @@ Explanation
 Python 2.7 or 3.6 and greater are required. Install Hy language interpreter and
 ``calchylus`` module by using ``pip`` Python package management tool:
 
-.. code:: unix
+.. code-block:: bash
 
 	$ pip install hy calchylus
 
 Open Hy since `Calchylus` is written as Hy macros:
 
-.. code:: unix
+.. code-block:: bash
 
 	$ hy
 
 Import Lambda calculus macros and define function indicator letter ``L`` and
 argument-body separator character ``,``:
 
-.. code:: lisp
+.. code-block:: hylang
 
-	> (require [calchylus.lambdas [*]])
-	> (with-alpha-conversion-and-macros L ,)
+	(require [calchylus.lambdas [*]])
+	(with-alpha-conversion-and-macros L ,)
 
 Now we can evaluate Lambda expressions. Here we use the Church numeral five,
 that is one of the most common number representations in Lambda calculus:
 
-.. code:: lisp
+.. code-block:: hylang
 
-	> (L x y , (x (x (x (x (x y))))) a b)
-	(a (a (a (a (a b)))))
+	(L x y , (x (x (x (x (x y))))) a b)
+	; (a (a (a (a (a b)))))
 
 Predefined Lambda macros are also available as shorthands to the most common
 Lambda forms, for example calculating nth Fibonacci number by using Church
 numerals:
 
-.. code:: lisp
+.. code-block:: hylang
 
-	> (FIBONACCI FIVE)
-	(x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
+	(FIBONACCI FIVE)
+	; (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
 All available Lambda macros are:
 
@@ -144,7 +144,7 @@ In ``(L x , x y)``, ``L`` is the Lambda function indicator and parentheses
 ``()`` indicate the whole application that should be evaluated. ``x`` before the
 separator ``,`` is the function argument. ``x`` after the separator is the
 function body or just the Lambda term, as it is more conventionally called.
-Finally ``y``is the value for the function, thus we have a full application
+Finally, ``y` `is the value for the function, thus we have a full application
 here, rather than just an abstraction. Abstraction would, on the other hand be:
 ``(L x , x)``.
 
@@ -155,7 +155,8 @@ will bring practicer to the deep foundations of programming language. That is,
 in which order to evaluate arguments and functions and how to deal with argument
 name collisions.
 
-### Evaluation
+Evaluation
+----------
 
 Next we need some evaluation rules to call the function with given input and
 give the result. These rules or procedures are called:
