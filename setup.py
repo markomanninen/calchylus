@@ -16,14 +16,14 @@ setup(
   package_data = {
     'calchylus': ['*.hy']
   },
-
-  version = 'v0.1.1',
+  install_requires = ['hy==0.13.0'],
+  version = 'v0.1.2',
   description = 'Calchylus - Lambda Calculus with Hy',
   author = 'Marko Manninen',
   author_email = 'elonmedia@gmail.com',
 
   url = 'https://github.com/markomanninen/calchylus',
-  download_url = 'https://github.com/markomanninen/calchylus/archive/v0.1.1.tar.gz',
+  download_url = 'https://github.com/markomanninen/calchylus/archive/v0.1.2.tar.gz',
   keywords = ['hylang', 'python', 'lisp', 'macros', 'dsl', 'lambda calculus', 'functional language'],
   platforms = ['any'],
 
