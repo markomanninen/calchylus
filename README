@@ -47,6 +47,19 @@ Quick start
 	(require [calchylus.lambdas [*]])
 	(with-alpha-conversion-and-macros L ,)
 	(L x y , (x (x (x (x (x y))))) a b)
-	; (a (a (a (a (a b)))))
+
+|Output:|
+
+.. code-block:: lisp
+
+	(a (a (a (a (a b)))))
+
+.. code-block:: hylang
+
 	(FIBONACCI FIVE)
-	; (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
+
+|Output:|
+
+.. code-block:: lisp
+
+  (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
