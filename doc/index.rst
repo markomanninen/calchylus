@@ -3,9 +3,7 @@ Calchylus - Lambda calculus with Hy
 ===================================
 
 $$
-\\\\
 \\Large ϒ = 𝜆x.(𝜆y.x \\space (y \\space y)) \\space (𝜆y.x \\space (y \\space y))
-\\\\
 $$
 
 ``Calchylus`` is a `Hy <http://docs.hylang.org>`__ module that is used to
