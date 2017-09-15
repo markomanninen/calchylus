@@ -1,6 +1,7 @@
-from distutils.core import setup
-
-install_requires = ['hy>=0.13.0']
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 #python setup.py register -r pypitest
 #python setup.py register -r pypi
@@ -16,9 +17,10 @@ setup(
   package_data = {
     'calchylus': ['*.hy']
   },
-  install_requires = ['hy==0.13.0'],
+  install_requires = ['hy>=0.13.0'],
   version = 'v0.1.2',
   description = 'Calchylus - Lambda Calculus with Hy',
+  long_description = open('README').read(),
   author = 'Marko Manninen',
   author_email = 'elonmedia@gmail.com',
 
