@@ -2,6 +2,7 @@ try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
+import os
 
 #python setup.py register -r pypitest
 #python setup.py register -r pypi
@@ -9,6 +10,9 @@ except ImportError:
 #python setup.py sdist upload -r pypitest
 #python setup.py sdist upload
 # 08/2017 windows: python setup.py sdist upload
+
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname), encoding="utf8").read()
 
 setup(
   name = 'calchylus',
@@ -20,7 +24,7 @@ setup(
   install_requires = ['hy>=0.13.0'],
   version = 'v0.1.2',
   description = 'Calchylus - Lambda Calculus with Hy',
-  long_description = open('README').read(),
+  long_description = read('README'),
   author = 'Marko Manninen',
   author_email = 'elonmedia@gmail.com',
 
