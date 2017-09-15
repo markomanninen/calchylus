@@ -2,15 +2,11 @@
 Calchylus - Lambda calculus with Hy
 ===================================
 
-.. |br| raw:: html
-
-   <br />
-
-$$\\large ϒ = 𝜆x.(𝜆y.x \\space (y \\space y)) \\space (𝜆y.x \\space (y \\space y))$$
-
-.. |br| raw:: html
-
-   <br />
+$$
+\\\\
+\\Large ϒ = 𝜆x.(𝜆y.x \\space (y \\space y)) \\space (𝜆y.x \\space (y \\space y))
+\\\\
+$$
 
 ``Calchylus`` is a `Hy <http://docs.hylang.org>`__ module that is used to
 evaluate, and furthermore, to understand the basics of Lambda calculus
