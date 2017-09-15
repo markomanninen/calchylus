@@ -2,18 +2,36 @@
 Calchylus - Lambda calculus with Hy
 ===================================
 
-
-$$\large ϒ = 𝜆x.(𝜆y.x \space (y \space y)) \space (𝜆y.x \space (y \space y))$$
-
-
-``Calchylus`` is a `Hy <http://docs.hylang.org>`__ module that is used to
+``calchylus`` is a `Hy <http://docs.hylang.org>`__ module that is used to
 evaluate, and furthermore, to understand the basics of Lambda calculus
 (also written as λ-calculus).
 
 	`Lambda calculus <https://en.wikipedia.org/wiki/Lambda_calculus>`__ is a
- 	formal system in mathematical logic for expressing computation that is
- 	based on function abstraction and application using variable binding and
- 	substitution. -*wikipedia.org*
+	formal system in mathematical logic for expressing computation that is
+	based on function abstraction and application using variable binding and
+	substitution. -*wikipedia.org*
+
+Intended audience is those who:
+
+a) are interested of the theory and the history of the programming languages,
+b) may have some experience in Python and/or Lisp,
+c) but also those, who wants to narrow the gap between mathematical notation and
+   programming languages, especially in terms of logics.
+
+`Andrew Bayer <http://math.andrej.com/2016/08/30/formal-proofs-are-not-just-deduction-steps/>`__
+writes in his blog post in 2016/08:
+
+	Traditional logic, and to some extent also type theory, hides computation
+	behind equality.
+
+Lambda calculus, on the other hand, reveals how the computation is made by
+manipulation of objects.
+
+``calchylus`` can also serve as a starting point for a mini programming language.
+Via custom macros representing well known Lambda forms, ``calchylus`` provides
+all necessary elements for boolean, integer and list data types as well as
+conditionals, loops, variable setters, mathematical operators and exemplary
+arithmetic functions like, summation, factorial, and fibonacci.
 
 
 Quick start
@@ -29,15 +47,30 @@ Quick start
 	(require [calchylus.lambdas [*]])
 	(with-alpha-conversion-and-macros L ,)
 	(L x y , (x (x (x (x (x y))))) a b)
-	; (a (a (a (a (a b)))))
+
+|Output:|
+
+.. code-block:: hylang
+
+	(a (a (a (a (a b)))))
+
+.. code-block:: hylang
+
 	(FIBONACCI FIVE)
-	; (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
+
+|Output:|
+
+.. code-block:: hylang
+
+  (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
 
 Explanation
 -----------
 
-For Windows, Linux, and MacOS Python 2.7 or 3.6 and greater are required.
+``calchylus`` module works in Windows, Linux, and MacOS operating systems.
+Python 2.7 or 3.6 and greater are required.
+
 Install Hy language interpreter and ``calchylus`` module by using ``pip``
 Python package management tool:
 
@@ -45,51 +78,63 @@ Python package management tool:
 
 	$ pip install hy calchylus
 
-Open Hy since `Calchylus` is written as Hy macros:
+Open Hy, since ``calchylus`` is mostly written as Hy macros:
 
 .. code-block:: bash
 
 	$ hy
 
-Import Lambda calculus macros and define function indicator letter ``L`` and
-argument-body separator character ``,``:
+Import Lambda calculus macros and define Lambda function indicator letter ``L``
+and Lambda argument-body separator character ``,``:
 
 .. code-block:: hylang
 
 	(require [calchylus.lambdas [*]])
 	(with-alpha-conversion-and-macros L ,)
 
-Now we can evaluate Lambda expressions. Here we use the Church numeral five,
-that is one of the most common number representations in Lambda calculus:
+`with-alpha-conversion-and-macros` we say that arguments should be internally
+renamed to prevent name collision and that we want to load custom macros
+representing Lambda forms.
+
+Now we are ready to evaluate Lambda expressions. Here we apply
+`Church numerals <https://en.wikipedia.org/wiki/Church_encoding>`__  five to
+the two values, ``a`` and ``b``:
 
 .. code-block:: hylang
 
 	(L x y , (x (x (x (x (x y))))) a b)
-	; (a (a (a (a (a b)))))
 
-Predefined Lambda macros are also available as shorthands to the most common
-Lambda forms, for example calculating nth Fibonacci number by using Church
-numerals:
+|Output:|
+
+.. code-block:: hylang
+
+	(a (a (a (a (a b)))))
+
+For now, not going deeper to this, we can see that all ``x``'s got replaced by
+``a`` and all ``y``'s got replaced by ``b``.
+
+Predefined macros are available as shorthands to the most common Lambda forms.
+For example, calculating the fifth Fibonacci number can be done by using Church
+numeral (one of the most common number representations in Lambda calculus) FIVE
+shorthand and by using the FIBONACCI shorthand for the arithmetic operation:
 
 .. code-block:: hylang
 
 	(FIBONACCI FIVE)
-	; (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
-All available Lambda macros are:
+|Output:|
 
-- CONST IDENT LET LET*
-- TRUE FALSE
-- PAIR HEAD TAIL FIRST SECOND NIL NIL?
-- NUM ZERO ONE TWO THREE FOUR FIVE SIX SEVEN EIGHT NINE TEN
-- ZERO? EQ? LEQ?
-- COND AND OR NOT XOR IMP
-- PRED SUCC SUM SUB PROD EXP
-- SELF YCOMB
-- SUMMATION FACTORIAL FIBONACCI
+.. code-block:: hylang
 
-These macros serves as strictly mathematical and logical foundation for a
-minimal programming language that is purely based on Lambda calculus.
+	(x (x (x (x (x (x (x (x y))))))))
+
+That is the Church numeral 8, the fifth
+`Fibonacci number <https://en.wikipedia.org/wiki/Fibonacci_number>`__.
+
+In ``calcylus`` these custom macro shorthands representing Lambda forms serves
+as a strictly mathematical and logical foundation for a minimal programming
+language that is based on purely untyped Lambda calculus.
+
 
 History
 -------
@@ -175,6 +220,18 @@ Optional:
 
 *****
 
+All available Lambda macros are:
+
+- CONST IDENT LET LET*
+- TRUE FALSE
+- PAIR HEAD TAIL FIRST SECOND NIL NIL?
+- NUM ZERO ONE TWO THREE FOUR FIVE SIX SEVEN EIGHT NINE TEN
+- ZERO? EQ? LEQ?
+- COND AND OR NOT XOR IMP
+- PRED SUCC SUM SUB PROD EXP
+- SELF YCOMB
+- SUMMATION FACTORIAL FIBONACCI
+
 In reality, there is really not so much to implement because Hy is already a
 Lisp language with a quite consice anonymous function notation. Lisp, on the
 other hand, can be defined as *an untyped Lambda calculus extended with
@@ -198,3 +255,5 @@ The `MIT <http://choosealicense.com/licenses/mit/>`__ License
 -------------------------------------------------------------
 
 Copyright (c) 2017 Marko Manninen
+
+.. |Output:| replace:: [output]
