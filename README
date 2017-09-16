@@ -25,7 +25,7 @@ writes in his blog post in 2016/08:
 	behind equality.
 
 Lambda calculus, on the other hand, reveals how the computation is made by
-manipulation of the lambda terms.
+manipulation of the Lambda terms.
 
 ``calchylus`` can also serve as a starting point for a mini programming language.
 Via custom macros representing well known Lambda forms, ``calchylus`` provides
@@ -34,8 +34,6 @@ conditionals, loops, variable setters, mathematical operators, and exemplary
 arithmetic functions like, summation, factorial, and fibonacci. Finally, one
 can expect to get a good understanding of combinatory logic, not the least of
 the fixed point combinator or ϒ combinator:
-
-$$\\Large ϒ = 𝜆x.(𝜆y.x \\space (y \\space y)) \\space (𝜆y.x \\space (y \\space y))$$
 
 
 Quick start
@@ -54,4 +52,4 @@ Quick start
 
 .. code-block:: hylang
 
-	(FIBONACCI FIVE) ; output: (x (x (x (x (x (x (x (x y))))))))
+	(FIBONACCI SEVEN) ; output: (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
