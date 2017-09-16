@@ -197,7 +197,7 @@ the dot is a reserved letter for cons in list processing.
 Let us strip down the former expression and show how all rules are taking place
 in it.
 
-In ```(L x , x y)``, ``L`` is the Lambda function indicator and parentheses
+In ``(L x , x y)``, ``L`` is the Lambda function indicator and parentheses
 ``()`` indicate the whole application that should be evaluated. ``x`` before the
 separator ``,`` is the function argument. ``x`` after the separator is the
 function body or just the Lambda term, as it is more conventionally called.
