@@ -1,21 +1,28 @@
 
 Quick start
------------
+===========
+
+**Install**
 
 .. code-block:: bash
 
 	$ pip install hy calchylus
 	$ hy
 
+**Run**
+
 .. code-block:: hylang
 
 	(require [calchylus.lambdas [*]])
 	(with-alpha-conversion-and-macros L ,)
+
+.. code-block:: hylang
+
 	(L x y , (x (x (x (x (x y))))) a b) ; output: (a (a (a (a (a b)))))
 
 .. code-block:: hylang
 
-	(FIBONACCI FIVE) ; output: (x (x (x (x (x y)))))
+	(FIBONACCI SEVEN) ; output: (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
 
 Explanation
@@ -45,11 +52,11 @@ and Lambda argument-body separator character ``,``:
 	(require [calchylus.lambdas [*]])
 	(with-alpha-conversion-and-macros L ,)
 
-``with-alpha-conversion-and-macros`` we say that arguments should be internally
-renamed to prevent name collision and that we want to load custom macros
-representing Lambda forms.
+By ``with-alpha-conversion-and-macros`` we want to say that arguments should
+be internally renamed to prevent argument name collision and that we want to
+load custom macros representing Lambda forms.
 
-Now we are ready to evaluate Lambda expressions. Here we apply
+Now, we are ready to evaluate Lambda expressions. Here we apply
 `Church numeral <https://en.wikipedia.org/wiki/Church_encoding>`__  five to
 the two values, ``a`` and ``b``:
 
@@ -63,30 +70,29 @@ the two values, ``a`` and ``b``:
 
 	(a (a (a (a (a b)))))
 
-For now, not going deeper to this, we can see that all ``x`` got replaced by
+Without going deeper into this yet, we can see that all ``x`` got replaced by
 ``a`` and all ``y`` got replaced by ``b``.
 
-Predefined macros are available as shorthands to the most common Lambda forms.
+Predefined macros are available as shorthands for the most common Lambda forms.
 For example, calculating the fifth Fibonacci number can be done by using Church
-numeral FIVE shorthand and by using the FIBONACCI shorthand for the arithmetic
-operation:
+numeral ``SEVEN`` shorthand and by using the ``FIBONACCI`` shorthand:
 
 .. code-block:: hylang
 
-	(FIBONACCI FIVE)
+	(FIBONACCI SEVEN)
 
 |Output:|
 
 .. code-block:: text
 
-	(x (x (x (x (x (x (x (x y))))))))
+	(x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
-That is the Church numeral 8, the fifth
+That is the Church numeral 13, the seventh
 `Fibonacci number <https://en.wikipedia.org/wiki/Fibonacci_number>`__.
 
 In ``calcylus`` these custom macro shorthands representing Lambda forms serves
-as a mathematical and logical foundation for a minimal programming language
-that is based on untyped Lambda calculus.
+as a mathematical and logical foundation for a prototype programming language
+that is based on purely untyped Lambda calculus.
 
 
 .. |Output:| replace:: [output]
