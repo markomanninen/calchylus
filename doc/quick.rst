@@ -15,7 +15,7 @@ Quick start
 
 .. code-block:: hylang
 
-	(FIBONACCI FIVE) ; output: (x (x (x (x (x (x (x (x y))))))))
+	(FIBONACCI FIVE) ; output: (x (x (x (x (x y)))))
 
 
 Explanation
