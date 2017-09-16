@@ -50,5 +50,6 @@ Contents
    history
    concepts
    expressions
+   native
    evaluation
    tests

@@ -26,13 +26,16 @@ Lambda applications:
    lambda letter: ``λ``
 2. Lambda function argument and body separator, that is usually a dot: ``.``
 
-Optional:
+Optionally two more syntax rules can be implemented:
 
-3. Parentheses to group and indicate the Lambda function bodies and variables.
-   The most convenient way is to use left ``(`` and right ``)`` parentheses.
-   Other purpose of using parentheses is to visually make Lambda
-   expressions easier to read and to avoid arbitrarities in Lambda expressions.
+3. Parentheses to group and indicate Lambda applications, abstractions,
+   function bodies and variables. The most convenient way is to use left ``(``
+   and right ``)`` parentheses. Other purpose of using parentheses is to
+   visually make Lambda expressions easier to read and to avoid arbitrarities
+   in Lambda expressions.
 4. Space character to distinct function indicator, separator, variables, body,
    and arguments. This is optional, because in the simplest Lambda calculus
    implementation single character letters are used to denote variables. But it
-   is easy to see that this is quite limiting for practical purposes.
+   is easy to see that this would be quite limiting for the practical purposes.
+
+Knowing these we should be fine to write Lambda expressions.
