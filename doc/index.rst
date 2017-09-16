@@ -25,7 +25,7 @@ writes in his blog post in 2016/08:
 	behind equality.
 
 Lambda calculus, on the other hand, reveals how the computation is made by
-manipulation of the lambda terms.
+manipulation of the Lambda terms.
 
 ``calchylus`` can also serve as a starting point for a mini programming language.
 Via custom macros representing well known Lambda forms, ``calchylus`` provides
