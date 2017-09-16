@@ -1,6 +1,7 @@
 #!/usr/bin/python3
-; Lambda Calculus custom macros
-
+;--------------------------------
+; Lambda calculus custom macros
+;--------------------------------
 (defmacro init-macros [lambdachr separator]
 
   `(do
@@ -17,6 +18,8 @@
                "SUCC" "PRED"  "SUM" "SUB" "PROD" "EXP"
                "SELF" "YCOMB" "DO" "APP"
                "SUMMATION" "FACTORIAL" "FIBONACCI"])
+        ; return reversed list rather than reverse in place
+        (defn reverse [l] (.reverse l) l)
         ; is expr(ession) a suitable macro form?
         (defn macro-form? [expr] (and (symbol? expr) (in expr forms)))
         ; expand custom lambda forms to the normal lambda forms
@@ -34,6 +37,10 @@
                   (macro-expand (read-str (% "(%s)" expr)))
                   ; return other forms as they are
                   expr))))
+    ;--------------------------------
+    ; special forms
+    ;--------------------------------
+    ; LET, LET*, CONST, DO, APP
 		; named variables. multiple variables can be associated first, then the last expression is the body
 		; (LET a 1 b 2 (a b)) ->
     ; (L a b p , (p a b) 1 2 (L a b , (a b))) -> (1 2)
@@ -64,6 +71,14 @@
     ; (L x , 1 2) -> 1
     (defmacro CONST  [&rest args]
       `(~lambdachr ~(first args) ~separator ~@(rest args)))
+    ; do structure for imperative command sequences
+    ; (DO (LET a 1) (LET b 2) (a b)) ->
+    ; (LET a 1 (LET b 2 (a b))) ->
+    ; (1 2)
+    (defmacro DO [&rest args]
+      ; fold right with reduce reverse extend
+      (reduce (fn [x y] (extend y [x]))
+        (reverse (HyExpression args))))
     ; lambda form macro generator
     (defmacro macro-form [form body]
       `(do
@@ -72,17 +87,20 @@
         ;(.append forms (hy.HySymbol ~(name form)))
         (setv forms (extend forms (, ~(name form))))
         (defmacro ~form [&rest args] (extend ~body args))))
-    ; do structure to imperatively sequence commands
-    (macro-form DO `(~lambdachr ~separator))
     ; lambda application wrapper. Y application sharp macro can also be used
     ; identically with APP macro
     (macro-form APP `(~lambdachr ~separator))
+    ;--------------------------------
+    ; basic forms
+    ;--------------------------------
     ; identity, return passed argument as it is
     (macro-form IDENT `(~lambdachr a ~separator a))
     ; booleans
     (macro-form TRUE `(~lambdachr a b ~separator a))
     (macro-form FALSE `(~lambdachr a b ~separator b))
-    ; list things
+    ;--------------------------------
+    ; list forms
+    ;--------------------------------
     ; make a pair for list
     (macro-form PAIR `(~lambdachr a b s ~separator (s a b)))
     ; last item of the nested lists should be nil
@@ -95,10 +113,14 @@
     (macro-form HEAD `(~lambdachr s ~separator (s TRUE)))
     (macro-form TAIL `(~lambdachr s ~separator (s FALSE)))
     (macro-form NIL? `(~lambdachr s ~separator (s FALSE TRUE)))
-    ; zero things
+    ;--------------------------------
+    ; zero forms
+    ;--------------------------------
     (macro-form ZERO `(FALSE))
     (macro-form ZERO? `(~lambdachr n ~separator (n (L a , FALSE) TRUE)))
-    ; logic
+    ;--------------------------------
+    ; logic forms
+    ;--------------------------------
     (macro-form COND `(~lambdachr p a b ~separator (p a b)))
     ; (macro-form AND `(~lambdachr a b , (a b a)))
     (macro-form AND `(~lambdachr a b ~separator (a b FALSE)))
@@ -110,15 +132,12 @@
     (macro-form IMP `(~lambdachr a b ~separator (OR (NOT a) b)))
     ; church number generator: (NUM 3) ; -> (L x y , (x (x (x y))))
     ; launch application: (NUM 3 a b) ; -> (a (a (a b)))
-    ; Tuukka Turto (@tuturto), 2017
     (defmacro NUM [n &rest args]
-      (if (< n 0) (macro-error n (% "For NUM, n needs to be zero or more, was: %s" n))
-          (= n 0) `(~lambdachr x y ~separator y ~@args)
-          (> n 0) (do (setv expr `(x y))
-                      (for [i (range (dec n))]
-                        (setv expr `(x ~expr)))
-                      `(~lambdachr x y ~separator ~expr ~@args))))
-    ; positive "church" numerals
+      `(~lambdachr x y ~separator
+        ~(reduce (fn [x y] ['x x]) (range n) 'y) ~@args))
+    ;--------------------------------
+    ; positive "church" numeral forms
+    ;--------------------------------
     (macro-form ONE `(NUM 1))
     (macro-form TWO `(NUM 2))
     (macro-form THREE `(NUM 3))
@@ -129,11 +148,14 @@
     (macro-form EIGHT `(NUM 8))
     (macro-form NINE `(NUM 9))
     (macro-form TEN `(NUM 10))
-    ; arithmetics
+    ;--------------------------------
+    ; arithmetic forms
+    ;--------------------------------
     ; next / successor = INC = ADD
     (macro-form SUCC `(~lambdachr n x y ~separator (x (n x y))))
     ; previous / predecessor = DEC
-    (macro-form PRED `(~lambdachr n x y ~separator (n (~lambdachr g h ~separator (h (g x))) (~lambdachr x ~separator y) IDENT)))
+    (macro-form PRED
+      `(~lambdachr n x y ~separator (n (~lambdachr g h ~separator (h (g x))) (~lambdachr x ~separator y) IDENT)))
     ; sum (x+y) two numbers together
     ;(macro-form SUM `(L m n , (m SUCC n)))
     (macro-form SUM `(~lambdachr m n x y ~separator (m x (n x y))))
@@ -156,14 +178,23 @@
     ; self application
     (macro-form SELF `(~lambdachr f x ~separator (f f x)))
     ; ϒ combinator
-    (macro-form YCOMB `(~lambdachr f ~separator (~lambdachr x ~separator (f (x x)) (~lambdachr x ~separator (f (x x))))))
+    (macro-form YCOMB
+      `(~lambdachr f ~separator (~lambdachr x ~separator (f (x x)) (~lambdachr x ~separator (f (x x))))))
+    ;--------------------------------
     ; math functions
+    ;--------------------------------
     ; ∑ summation function
     ;(macro-form SUMMATION `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (ZERO? n) ZERO (SUM n (f f (PRED n))))) x)))
-    (macro-form SUMMATION `(~lambdachr x ~separator (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ZERO (SUM n (f (PRED n))))) x)))
+    (macro-form SUMMATION
+      `(~lambdachr x ~separator
+        (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ZERO (SUM n (f (PRED n))))) x)))
     ; ∏ factorial function
     ;(macro-form FACTORIAL `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (ZERO? n) ONE (PROD n (f f (PRED n))))) x)))
-    (macro-form FACTORIAL `(~lambdachr x ~separator (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ONE (PROD (f (PRED n)) n))) x)))
+    (macro-form FACTORIAL
+      `(~lambdachr x ~separator
+        (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ONE (PROD (f (PRED n)) n))) x)))
     ; F/f fibonacci function
     ;(macro-form FIBONACCI `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (LEQ? n TWO) ONE (SUM (f f (PRED n)) (f f (PRED (PRED n)))))) x)))
-    (macro-form FIBONACCI `(~lambdachr x ~separator (YCOMB (~lambdachr f n ~separator (COND (LEQ? n TWO) ONE (SUM (f (PRED n)) (f (PRED (PRED n)))))) x)))))
+    (macro-form FIBONACCI
+      `(~lambdachr x ~separator
+        (YCOMB (~lambdachr f n ~separator (COND (LEQ? n TWO) ONE (SUM (f (PRED n)) (f (PRED (PRED n)))))) x)))))

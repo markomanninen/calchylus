@@ -1,22 +1,24 @@
 #!/usr/bin/python3
 ;----------------------------------------------
-; Lambda Calchylus
-;
-; Lambda calcylus evaluator in Hy
+; Calchylus - Lambda calculus with Hy
 ;
 ; Source:
 ; https://github.com/markomanninen/calchylus/
 ;
 ; Install:
-; $ pip install calchylus
+; $ pip install hy calchylus
+;
+; Open Hy:
+; $ hy
 ;
 ; Import macros:
 ; (require (calchylus.lambda (*)))
 ;
-; Usage:
+; Use:
 ; (L x y , (x (x y)) a b) ->
 ; (a (a b))
 ;
+; Documentation: http://calchylus.readthedocs.io/
 ; Author: Marko Manninen <elonmedia@gmail.com>
 ; Copyright: Marko Manninen (c) 2017
 ; Licence: MIT
