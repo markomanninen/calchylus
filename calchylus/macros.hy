@@ -165,5 +165,5 @@
     ;(macro-form FACTORIAL `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (ZERO? n) ONE (PROD n (f f (PRED n))))) x)))
     (macro-form FACTORIAL `(~lambdachr x ~separator (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ONE (PROD (f (PRED n)) n))) x)))
     ; F/f fibonacci function
-    ;(macro-form FIBONACCI `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (LEQ? n ONE) ONE (SUM (f f (PRED n)) (f f (PRED (PRED n)))))) x)))
-    (macro-form FIBONACCI `(~lambdachr x ~separator (YCOMB (~lambdachr f n ~separator (COND (LEQ? n ONE) ONE (SUM (f (PRED n)) (f (PRED (PRED n)))))) x)))))
+    ;(macro-form FIBONACCI `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (LEQ? n TWO) ONE (SUM (f f (PRED n)) (f f (PRED (PRED n)))))) x)))
+    (macro-form FIBONACCI `(~lambdachr x ~separator (YCOMB (~lambdachr f n ~separator (COND (LEQ? n TWO) ONE (SUM (f (PRED n)) (f (PRED (PRED n)))))) x)))))
