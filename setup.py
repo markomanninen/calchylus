@@ -4,32 +4,30 @@ except ImportError:
     from distutils.core import setup
 import os
 
-#python setup.py register -r pypitest
-#python setup.py register -r pypi
-# next command not recommended but what can you do in Windows...
-#python setup.py sdist upload -r pypitest
 #python setup.py sdist upload
-# 08/2017 windows: python setup.py sdist upload
+
+version = 'v0.1.5'
+name = 'calchylus'
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname), encoding="utf8").read()
 
 setup(
-  name = 'calchylus',
-  packages = ['calchylus'],
-  package_dir = {'calchylus': 'calchylus'},
+  name = name,
+  packages = [name],
+  package_dir = {name: name},
   package_data = {
-    'calchylus': ['*.hy']
+    name: ['*.hy']
   },
   install_requires = ['hy>=0.13.0'],
-  version = 'v0.1.4',
+  version = version,
   description = 'Calchylus - Lambda Calculus with Hy',
   long_description = read('README'),
   author = 'Marko Manninen',
   author_email = 'elonmedia@gmail.com',
 
-  url = 'https://github.com/markomanninen/calchylus',
-  download_url = 'https://github.com/markomanninen/calchylus/archive/v0.1.4.tar.gz',
+  url = 'https://github.com/markomanninen/%s' % name,
+  download_url = 'https://github.com/markomanninen/%s/archive/%s.tar.gz' % [name, version],
   keywords = ['hylang', 'python', 'lisp', 'macros', 'dsl', 'lambda calculus', 'functional language'],
   platforms = ['any'],
 
