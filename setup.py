@@ -27,7 +27,7 @@ setup(
   author_email = 'elonmedia@gmail.com',
 
   url = 'https://github.com/markomanninen/%s' % name,
-  download_url = 'https://github.com/markomanninen/%s/archive/%s.tar.gz' % [name, version],
+  download_url = 'https://github.com/markomanninen/%s/archive/%s.tar.gz' % (name, version),
   keywords = ['hylang', 'python', 'lisp', 'macros', 'dsl', 'lambda calculus', 'functional language'],
   platforms = ['any'],
 
