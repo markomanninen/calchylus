@@ -49,7 +49,7 @@
       (setv x (if args (cut (cut args 0 (len args) 2) 0 -1) ())
             y (if args (cut args 1 (len args) 2) ())
             z (if args (last args) ()))
-      `(L ~@x p , (p ~@x) ~@y (L ~@x , ~z)))
+      `(~lambdachr ~@x p ~separator (p ~@x) ~@y (~lambdachr ~@x ~separator ~z)))
     ; same as LET but preceding variables are evaluated becore using on the body so that
     ; variables associated previously can be used on the later variables
     ; (LET* a 1 b a (a b)) ->
@@ -117,7 +117,7 @@
     ; zero forms
     ;--------------------------------
     (macro-form ZERO `(FALSE))
-    (macro-form ZERO? `(~lambdachr n ~separator (n (L a , FALSE) TRUE)))
+    (macro-form ZERO? `(~lambdachr n ~separator (n (~lambdachr a ~separator FALSE) TRUE)))
     ;--------------------------------
     ; logic forms
     ;--------------------------------
