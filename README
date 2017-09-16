@@ -30,7 +30,7 @@ were originally done with a paper and a pen, but now we rather use computers for
 the task. Lambda calculus also addresses the problem, what can be proved and
 solved and what cannot be computed in a finite time.
 
-Beside evaluating LAmbdaa expressions, ``calchylus`` module can serve as a
+Beside evaluating Lambda expressions, ``calchylus`` module can serve as a
 starting point for a mini programming language. Via custom macros representing
 well known Lambda forms, ``calchylus`` provides all necessary elements for
 boolean, positive integer, and list data types as well as conditionals, loops,
