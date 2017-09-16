@@ -26,6 +26,4 @@ Hy, that is meant to operate as a transparent Lisp front end to Python's AST,
 was introduced at PyCon 2013 by Paul Tagliamonte.
 
 ``calchylus`` Lambda calculus module was programmed with Hy by
-Marko Manninen in 08-09/2017.
-
-.. |Output:| replace:: [output]
+Marko Manninen, 08-09/2017.
