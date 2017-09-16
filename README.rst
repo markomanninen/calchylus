@@ -33,9 +33,7 @@ all necessary elements for boolean, integer, and list data types as well as
 conditionals, loops, variable setters, mathematical operators, and exemplary
 arithmetic functions like, summation, factorial, and fibonacci. Finally, one
 can expect to get a good understanding of combinatory logic, not the least of
-the fixed point combinator or ϒ combinator:
-
-$$\\Large ϒ = 𝜆x.(𝜆y.x \\space (y \\space y)) \\space (𝜆y.x \\space (y \\space y))$$
+the fixed point combinator or ϒ combinator.
 
 
 Quick start
