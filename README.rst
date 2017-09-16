@@ -6,8 +6,6 @@ Calchylus - Lambda calculus with Hy
 evaluate, and furthermore through this documentation, shine light to the basics
 of Lambda calculus (also written as λ-calculus).
 
-.. note::
-
 	`Lambda calculus <https://en.wikipedia.org/wiki/Lambda_calculus>`__ is a
 	formal system in mathematical logic for expressing computation that is
 	based on function abstraction and application using variable binding and
@@ -21,21 +19,31 @@ c) who wants to narrow the gap between mathematical notation and
    programming languages, especially by means of logic
 
 `Andrew Bayer <http://math.andrej.com/2016/08/30/formal-proofs-are-not-just-deduction-steps/>`__
-writes in his blog post:
+writes in his blog post about formal proofs and deduction:
 
-	"Traditional logic, and to some extent also type theory, hides computation
-	behind equality."
+	*Traditional logic, and to some extent also type theory, hides computation
+	behind equality.*
 
 Lambda calculus, on the other hand, reveals how the computation in logic is
-made by manipulation of the Lambda terms. It also addresses the problem, what
-can be proved and solved and what cannot be computed in a finite time.
+made by manipulation of the Lambda terms. Manipulation rules are simple and
+were originally done with a paper and a pen, but now we rather use computers for
+the task. Lambda calculus also addresses the problem, what can be proved and
+solved and what cannot be computed in a finite time.
 
-``calchylus`` can also serve as a starting point for a mini programming language.
-Via custom macros representing well known Lambda forms, ``calchylus`` provides
-all necessary elements for boolean, integer, and list data types as well as
-conditionals, loops, variable setters, mathematical operators, and exemplary
-arithmetic functions like, summation, factorial, and fibonacci. Finally, one
-can expect to get a good understanding of combinatory logic, not the least of
+Beside evaluating LAmbdaa expressions, ``calchylus`` module can serve as a
+starting point for a mini programming language. Via custom macros representing
+well known Lambda forms, ``calchylus`` provides all necessary elements for
+boolean, positive integer, and list data types as well as conditionals, loops,
+variable setters, imperative do structure, logical connectives, arithmetic
+operators, and exemplary functions calculating summation, factorial, and
+nth fibonacci number. You can build upon that, for example
+`real numbers <https://cs.stackexchange.com/questions/2272/representing-negative-and-complex-numbers-using-lambda-calculus?noredirect=1&lq=1>`__,
+even negative complex numbers if that makes any sense. Your imagination is
+really the only limit.
+
+Finally, when investigating the open source ``calchylus`` implementation that is
+hosted on `GitHub <https://github.com/markomanninen/calchylus>`__, one can
+expect to get a good understanding of the combinatory logic, not the least of
 the fixed point combinator or shortly, ϒ combinator.
 
 
@@ -132,7 +140,7 @@ That is the Church numeral 13, the seventh
 
 In ``calcylus`` these custom macro shorthands representing Lambda forms serves
 as a mathematical and logical foundation for a prototype programming language
-that is based on purely untyped Lambda calculus.
+that is based on a purely untyped Lambda calculus.
 
 
 Concepts of Lambda calculus
@@ -230,18 +238,6 @@ a name in a computer program, at first seems to be equivalent to Lambda
 calculus. But there are some catches one needs to be aware of.
 
 *****
-
-All available Lambda macros are:
-
-- CONST IDENT LET LET*
-- TRUE FALSE
-- PAIR HEAD TAIL FIRST SECOND NIL NIL?
-- NUM ZERO ONE TWO THREE FOUR FIVE SIX SEVEN EIGHT NINE TEN
-- ZERO? EQ? LEQ?
-- COND AND OR NOT XOR IMP
-- PRED SUCC SUM SUB PROD EXP
-- SELF YCOMB
-- SUMMATION FACTORIAL FIBONACCI
 
 In reality, there is really not so much to implement because Hy is already a
 Lisp language with a quite consice anonymous function notation. Lisp, on the

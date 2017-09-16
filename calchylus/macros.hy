@@ -10,7 +10,7 @@
 
       (setv ; TODO: these could be constructed by some lambda-term-generator macro?
         forms ["CONST" "IDENT" "LET" "LET*" "TRUE" "FALSE"
-               "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL"
+               "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL" "LIST"
                "NUM" "ZERO" "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
                "ZERO?" "is_ZERO"
                "LEQ?" "is_LEQ" "EQ?" "is_EQ"  "GEQ?" "is_GEQ" "GE?" "is_GE" "LE?" "is_LE"
@@ -76,9 +76,14 @@
     ; (LET a 1 (LET b 2 (a b))) ->
     ; (1 2)
     (defmacro DO [&rest args]
-      ; fold right with reduce reverse extend
+      ; fold right with reduce reverse (extend?!)
       (reduce (fn [x y] (extend y [x]))
         (reverse (HyExpression args))))
+    ; list sequence constructor
+    (defmacro LIST [&rest args]
+      ; fold right with reduce and reverse
+      (reduce (fn [x y] `(PAIR ~y ~x))
+        (reverse (HyExpression args)) 'NIL))
     ; lambda form macro generator
     (defmacro macro-form [form body]
       `(do
