@@ -6,6 +6,14 @@
         ; lambda expression argument and body separator
         separator ',)
 
+  (defn reverse [l] (.reverse l) l)
+  ; (foldl [1 2 3 4]) -> [[[1, 2], 3], 4]
+  (defn foldl [l] (reduce (fn [x y] [x y]) l))
+  ; (foldr [1 2 3 4]) -> [1, [2, [3, 4]]]
+  (defn foldr [l] (reduce (fn [x y] [y x]) (reverse l)))
+  (defn append [a &rest b]
+      (for [c b] (.append a c)) a)
+
   ; is expression a generated symbol / unique variable name
   (defn gensym? [x]
     (or (= (first x) ":") (= (first x) "\ufdd0")))
