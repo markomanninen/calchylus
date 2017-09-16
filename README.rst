@@ -25,7 +25,7 @@ writes in his blog post in 2016/08:
 	behind equality.
 
 Lambda calculus, on the other hand, reveals how the computation is made by
-manipulation of the lambda terms.
+manipulation of the Lambda terms.
 
 ``calchylus`` can also serve as a starting point for a mini programming language.
 Via custom macros representing well known Lambda forms, ``calchylus`` provides
@@ -41,20 +41,27 @@ $$\\Large ϒ = 𝜆x.(𝜆y.x \\space (y \\space y)) \\space (𝜆y.x \\space (y
 Quick start
 -----------
 
+**Install**
+
 .. code-block:: bash
 
 	$ pip install hy calchylus
 	$ hy
 
+**Run**
+
 .. code-block:: hylang
 
 	(require [calchylus.lambdas [*]])
 	(with-alpha-conversion-and-macros L ,)
+
+.. code-block:: hylang
+
 	(L x y , (x (x (x (x (x y))))) a b) ; output: (a (a (a (a (a b)))))
 
 .. code-block:: hylang
 
-	(FIBONACCI FIVE) ; output: (x (x (x (x (x (x (x (x y))))))))
+	(FIBONACCI SEVEN) ; output: (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
 
 Explanation
@@ -84,11 +91,11 @@ and Lambda argument-body separator character ``,``:
 	(require [calchylus.lambdas [*]])
 	(with-alpha-conversion-and-macros L ,)
 
-``with-alpha-conversion-and-macros`` we say that arguments should be internally
-renamed to prevent name collision and that we want to load custom macros
-representing Lambda forms.
+By ``with-alpha-conversion-and-macros`` we want to say that arguments should
+be internally renamed to prevent argument name collision and that we want to
+load custom macros representing Lambda forms.
 
-Now we are ready to evaluate Lambda expressions. Here we apply
+Now, we are ready to evaluate Lambda expressions. Here we apply
 `Church numeral <https://en.wikipedia.org/wiki/Church_encoding>`__  five to
 the two values, ``a`` and ``b``:
 
@@ -102,29 +109,28 @@ the two values, ``a`` and ``b``:
 
 	(a (a (a (a (a b)))))
 
-For now, not going deeper to this, we can see that all ``x`` got replaced by
+Without going deeper into this yet, we can see that all ``x`` got replaced by
 ``a`` and all ``y`` got replaced by ``b``.
 
-Predefined macros are available as shorthands to the most common Lambda forms.
+Predefined macros are available as shorthands for the most common Lambda forms.
 For example, calculating the fifth Fibonacci number can be done by using Church
-numeral FIVE shorthand and by using the FIBONACCI shorthand for the arithmetic
-operation:
+numeral ``SEVEN`` shorthand and by using the ``FIBONACCI`` shorthand:
 
 .. code-block:: hylang
 
-	(FIBONACCI FIVE)
+	(FIBONACCI SEVEN)
 
 |Output:|
 
 .. code-block:: text
 
-	(x (x (x (x (x (x (x (x y))))))))
+	(x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
-That is the Church numeral 8, the fifth
+That is the Church numeral 13, the seventh
 `Fibonacci number <https://en.wikipedia.org/wiki/Fibonacci_number>`__.
 
 In ``calcylus`` these custom macro shorthands representing Lambda forms serves
-as a mathematical and logical foundation for a minimal programming language
+as a mathematical and logical foundation for a prototype programming language
 that is based on purely untyped Lambda calculus.
 
 
@@ -152,7 +158,7 @@ Two other syntactic rules must be introduced to be able to write and evaluate
 Lambda applications:
 
 1. Lambda function indicator, or binding operator that is usually a Greek
-   lambda letter: ``𝜆``
+   lambda letter: ``λ``
 2. Lambda function argument and body separator, that is usually a dot: ``.``
 
 Optional:
@@ -172,7 +178,7 @@ Lambda expressions in ``calchylus`` module
 
 All three concepts and four rules are implemented in the ``calchylus`` module
 so that for example the very basic Lambda calculus identity application
-``𝜆x.x y`` becomes ``(L x , x y)`` in ``calchylus`` notation. Infact, the
+``λx.x y`` becomes ``(L x , x y)`` in ``calchylus`` notation. Infact, the
 function indicator and the separator character can be freely defined in
 ``calchylus``. In the most of the examples we will use ``L`` and ``,`` because
 it will be easier to type ``L`` from the keyboard. Using the comma rather than
@@ -192,8 +198,8 @@ here, rather than just an abstraction. Abstraction would, on the other hand be:
 
 .. note::
 
-	In mathematics, identity function can be denoted either by $f(x) = x$ or by
-  $x → f(x)$.
+	In mathematics, identity function can be denoted either by $$f(x) = x$$ or by
+  $$x → f(x)$$.
 
 Because these rules are notable in any functional and Lisp like language, there
 is a great temptation to implement Lambda calculus evaluator as a native
@@ -244,15 +250,10 @@ the usual Lisp notation, and act only with functions. Maybe more useful are all
 main concepts and Lambda terms presented in the document. One can study the
 very basics of functional language with given examples.
 
-At the current development stage, `Calchylus` does not provide alpha conversion
-and beta [reduction](https://en.wikipedia.org/wiki/Lambda_calculus#Reduction)
-stages of terms as an output. `Calchylus` provides just the direct evaluated
-result via the `𝜆` macro.
-
-### Repository
-
-`Calchylus` Jupyter notebook [document](http://nbviewer.jupyter.org/github/markomanninen/calchylus/blob/master/Calchylus%20-%20Lambda%20calculus%20in%20Hy.ipynb) and GitHub [repository](https://github.com/markomanninen/calchylus) was initialized by [Marko Manninen](https://github.com/markomanninen), 08/2017.
-
+At the current development stage, ``calchylus`` does not provide `eta conversion
+<https://en.wikipedia.org/wiki/Lambda_calculus#Reduction>`__ because it only
+has some meaning on extensibility of the function and proofing if forms are
+same or not.
 
 
 The `MIT <http://choosealicense.com/licenses/mit/>`__ License
