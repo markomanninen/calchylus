@@ -23,8 +23,8 @@ c) who wants to narrow the gap between mathematical notation and
 `Andrew Bayer <http://math.andrej.com/2016/08/30/formal-proofs-are-not-just-deduction-steps/>`__
 writes in his blog post:
 
-	Traditional logic, and to some extent also type theory, hides computation
-	behind equality.
+	"Traditional logic, and to some extent also type theory, hides computation
+	behind equality."
 
 Lambda calculus, on the other hand, reveals how the computation in logic is
 made by manipulation of the Lambda terms. It also addresses the problem, what
