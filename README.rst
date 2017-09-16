@@ -3,8 +3,8 @@ Calchylus - Lambda calculus with Hy
 ===================================
 
 ``calchylus`` is a `Hy <http://docs.hylang.org>`__ module that is used to
-evaluate, and furthermore, to understand the basics of Lambda calculus
-(also written as λ-calculus).
+evaluate, and furthermore through this documentation, shine light to the basics
+of Lambda calculus (also written as λ-calculus).
 
 	`Lambda calculus <https://en.wikipedia.org/wiki/Lambda_calculus>`__ is a
 	formal system in mathematical logic for expressing computation that is
@@ -13,10 +13,10 @@ evaluate, and furthermore, to understand the basics of Lambda calculus
 
 Intended audience is those who:
 
-a) are interested of the theory and the history of the programming languages,
+a) are interested in the theory and the history of the programming languages,
 b) may have some experience in Python and/or Lisp,
 c) but also those, who wants to narrow the gap between mathematical notation and
-   programming languages, especially in terms of logics.
+   programming languages, especially by means of logic.
 
 `Andrew Bayer <http://math.andrej.com/2016/08/30/formal-proofs-are-not-just-deduction-steps/>`__
 writes in his blog post in 2016/08:
@@ -25,13 +25,17 @@ writes in his blog post in 2016/08:
 	behind equality.
 
 Lambda calculus, on the other hand, reveals how the computation is made by
-manipulation of objects.
+manipulation of the lambda terms.
 
 ``calchylus`` can also serve as a starting point for a mini programming language.
 Via custom macros representing well known Lambda forms, ``calchylus`` provides
-all necessary elements for boolean, integer and list data types as well as
-conditionals, loops, variable setters, mathematical operators and exemplary
-arithmetic functions like, summation, factorial, and fibonacci.
+all necessary elements for boolean, integer, and list data types as well as
+conditionals, loops, variable setters, mathematical operators, and exemplary
+arithmetic functions like, summation, factorial, and fibonacci. Finally, one
+can expect to get a good understanding of combinatory logic, not the least of
+the fixed point combinator or ϒ combinator:
+
+$$\\Large ϒ = 𝜆x.(𝜆y.x \\space (y \\space y)) \\space (𝜆y.x \\space (y \\space y))$$
 
 
 Quick start
@@ -46,23 +50,11 @@ Quick start
 
 	(require [calchylus.lambdas [*]])
 	(with-alpha-conversion-and-macros L ,)
-	(L x y , (x (x (x (x (x y))))) a b)
-
-|Output:|
+	(L x y , (x (x (x (x (x y))))) a b) ; output: (a (a (a (a (a b)))))
 
 .. code-block:: hylang
 
-	(a (a (a (a (a b)))))
-
-.. code-block:: hylang
-
-	(FIBONACCI FIVE)
-
-|Output:|
-
-.. code-block:: hylang
-
-  (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
+	(FIBONACCI FIVE) ; output: (x (x (x (x (x (x (x (x y))))))))
 
 
 Explanation
@@ -92,12 +84,12 @@ and Lambda argument-body separator character ``,``:
 	(require [calchylus.lambdas [*]])
 	(with-alpha-conversion-and-macros L ,)
 
-`with-alpha-conversion-and-macros` we say that arguments should be internally
+``with-alpha-conversion-and-macros`` we say that arguments should be internally
 renamed to prevent name collision and that we want to load custom macros
 representing Lambda forms.
 
 Now we are ready to evaluate Lambda expressions. Here we apply
-`Church numerals <https://en.wikipedia.org/wiki/Church_encoding>`__  five to
+`Church numeral <https://en.wikipedia.org/wiki/Church_encoding>`__  five to
 the two values, ``a`` and ``b``:
 
 .. code-block:: hylang
@@ -106,17 +98,17 @@ the two values, ``a`` and ``b``:
 
 |Output:|
 
-.. code-block:: hylang
+.. code-block:: text
 
 	(a (a (a (a (a b)))))
 
-For now, not going deeper to this, we can see that all ``x``'s got replaced by
-``a`` and all ``y``'s got replaced by ``b``.
+For now, not going deeper to this, we can see that all ``x`` got replaced by
+``a`` and all ``y`` got replaced by ``b``.
 
 Predefined macros are available as shorthands to the most common Lambda forms.
 For example, calculating the fifth Fibonacci number can be done by using Church
-numeral (one of the most common number representations in Lambda calculus) FIVE
-shorthand and by using the FIBONACCI shorthand for the arithmetic operation:
+numeral FIVE shorthand and by using the FIBONACCI shorthand for the arithmetic
+operation:
 
 .. code-block:: hylang
 
@@ -124,7 +116,7 @@ shorthand and by using the FIBONACCI shorthand for the arithmetic operation:
 
 |Output:|
 
-.. code-block:: hylang
+.. code-block:: text
 
 	(x (x (x (x (x (x (x (x y))))))))
 
@@ -132,81 +124,87 @@ That is the Church numeral 8, the fifth
 `Fibonacci number <https://en.wikipedia.org/wiki/Fibonacci_number>`__.
 
 In ``calcylus`` these custom macro shorthands representing Lambda forms serves
-as a strictly mathematical and logical foundation for a minimal programming
-language that is based on purely untyped Lambda calculus.
+as a mathematical and logical foundation for a minimal programming language
+that is based on purely untyped Lambda calculus.
 
 
-History
--------
-
-Lambda calculus was invented by Alonzo Church in the 1930s. That happened
-actually a decade before modern electrically powered computers were created.
-Lambda calculus can be describes as the simplest and the smallest universal
-programming language.
-
-The most of the modern computer languages utilizes some notation of functions.
-More precicely, anonymous functions that are not supposed to be referenced by
-a name in a computer program, are pretty much equivalent to Lambda calculus.
-But even then, there are some catches one needs to be aware of.
+Concepts of Lambda calculus
+---------------------------
 
 Lambda calculus takes everything to the very few basic computational ideas.
-First of all, there are three rules to follow in Lambda calculus:
+First of all, there are only three concepts necessary to express Lambda calculus:
 
 1. variables, that are any single or multiple letter identifiers designating
    parameters or mathematical values
-2. abstractions, that are function definitions which binds variables to the
+2. abstractions, that are function definitions which binds arguments to the
    function body
 3. application, that applies the function abstraction to the variables
 
-In the original Lambda calculus there was one and one only argument per
-function, but it was soon shown that nested Lambda abstractions can be used
-to "imitate" multiary functions.
+In the original Lambda calculus you could define one and one only argument per
+function, but even before Lambda calculus in 1920's
+`Schönfinkel <https://en.wikipedia.org/wiki/Moses_Sch%C3%B6nfinkel#Work>`__
+showed that nested unary functions can be used to imitate multiary functions.
+
+Later this mechanism settled down to be called as "currying" and is fully
+implemented in the ``calchylus`` module.
 
 Two other syntactic rules must be introduced to be able to write and evaluate
 Lambda applications:
 
-1. Lambda function indicator, that is usually a Greek lambda letter: ``𝜆``
+1. Lambda function indicator, or binding operator that is usually a Greek
+   lambda letter: ``𝜆``
 2. Lambda function argument and body separator, that is usually a dot: ``.``
 
 Optional:
 
 3. Parentheses to group and indicate the Lambda function bodies and variables.
-The most convenient way is to use left ``(`` and right ``)`` parentheses for this.
-Other purpose of using parentheses is to visually make Lambda expressions easier
-to read and avoid arbitrarities in Lambda expressions.
-4. Space character to indicate separate variables. This is optional, because in
-the simplest form single characters are used to denote variables. But it is easy
-to see that this is quite limiting for practical purposes.
+   The most convenient way is to use left ``(`` and right ``)`` parentheses.
+   Other purpose of using parentheses is to visually make Lambda
+   expressions easier to read and to avoid arbitrarities in Lambda expressions.
+4. Space character to distinct function indicator, separator, variables, body,
+   and arguments. This is optional, because in the simplest Lambda calculus
+   implementation single character letters are used to denote variables. But it
+   is easy to see that this is quite limiting for practical purposes.
 
-All seven rules are implemented in the ``Calchylus`` module so that for example
-the very basic Lambda calculus application ``𝜆x.x y`` becomes
-``(𝜆 x . x y)`` in ``calchylus`` notation. Infact, function indicator and
-separator characters can be freely defined in ``calchylus``. In the most of the
-examples we will use ``L`` and ``,`` because it will be easier to type ``L``
-from the keyboard. Using comma rather than dot comes from the Hy programming
-language environment restrictions, because dot is reserved for cons in list
-processing.
+
+Lambda expressions in ``calchylus`` module
+------------------------------------------
+
+All three concepts and four rules are implemented in the ``calchylus`` module
+so that for example the very basic Lambda calculus identity application
+``𝜆x.x y`` becomes ``(L x , x y)`` in ``calchylus`` notation. Infact, the
+function indicator and the separator character can be freely defined in
+``calchylus``. In the most of the examples we will use ``L`` and ``,`` because
+it will be easier to type ``L`` from the keyboard. Using the comma rather than
+the dot comes from the Hy programming language environment restrictions, where
+the dot is a reserved letter for cons in list processing.
 
 Let us strip down the former expression and show how all rules are taking place
 in it.
 
-In ``(L x , x y)``, ``L`` is the Lambda function indicator and parentheses
+In ```(L x , x y)``, ``L`` is the Lambda function indicator and parentheses
 ``()`` indicate the whole application that should be evaluated. ``x`` before the
 separator ``,`` is the function argument. ``x`` after the separator is the
 function body or just the Lambda term, as it is more conventionally called.
-Finally, ``y` `is the value for the function, thus we have a full application
+Finally ``y`` is the value for the function, thus we have a full application
 here, rather than just an abstraction. Abstraction would, on the other hand be:
 ``(L x , x)``.
+
+.. note::
+
+	In mathematics, identity function can be denoted either by $f(x) = x$ or by
+  $x → f(x)$.
 
 Because these rules are notable in any functional and Lisp like language, there
 is a great temptation to implement Lambda calculus evaluator as a native
 anonymous function calls. The problem with this approach is very subtle and
-will bring practicer to the deep foundations of programming language. That is,
-in which order to evaluate arguments and functions and how to deal with argument
-name collisions.
+will bring practicer to the deep foundations of the programming languages. That
+is, to decide in which order to evaluate arguments and functions and how to deal
+with argument name collisions.
 
-Evaluation
-----------
+
+Evaluation stages
+-----------------
 
 Next we need some evaluation rules to call the function with given input and
 give the result. These rules or procedures are called:
@@ -217,6 +215,12 @@ give the result. These rules or procedures are called:
 Optional:
 
 - eta conversion
+
+
+The most of the modern computer languages utilizes some notation of functions.
+More precicely, anonymous functions that are not supposed to be referenced by
+a name in a computer program, at first seems to be equivalent to Lambda
+calculus. But there are some catches one needs to be aware of.
 
 *****
 
