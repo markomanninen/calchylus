@@ -2,9 +2,12 @@
 Calchylus - Lambda calculus with Hy
 ===================================
 
-``calchylus`` is a `Hy <http://docs.hylang.org>`__ module that is used to
-evaluate, and furthermore through this documentation, shine light to the basics
-of Lambda calculus (also written as λ-calculus).
+Intro
+-----
+
+``calchylus`` is a computer installable `Hy <http://docs.hylang.org>`__ module
+that is used to evaluate, and furthermore through this documentation, shine
+light to the basics of Lambda calculus (also written as λ-calculus).
 
 	`Lambda calculus <https://en.wikipedia.org/wiki/Lambda_calculus>`__ is a
 	formal system in mathematical logic for expressing computation that is
@@ -14,7 +17,7 @@ of Lambda calculus (also written as λ-calculus).
 The target audience is those who:
 
 a) are interested in the theory and the history of the programming languages
-b) may have some experience in Python and/or Lisp
+b) may have or are interested to gain some experience in Python and/or Lisp
 c) who wants to narrow the gap between mathematical notation and
    programming languages, especially by means of logic
 
@@ -25,8 +28,8 @@ writes in his blog post about formal proofs and deduction:
 	behind equality.*
 
 Lambda calculus, on the other hand, reveals how the computation in logic is
-made by manipulation of the Lambda terms. Manipulation rules are simple and
-were originally done with a paper and a pen, but now we rather use computers for
+done by manipulation of the Lambda terms. Manipulation rules are simple and
+were originally made with a paper and a pen, but now we rather use computers for
 the task. Lambda calculus also addresses the problem, what can be proved and
 solved and what cannot be computed in a finite time.
 
@@ -34,17 +37,18 @@ Beside evaluating Lambda expressions, ``calchylus`` module can serve as a
 starting point for a mini programming language. Via custom macros representing
 well known Lambda forms, ``calchylus`` provides all necessary elements for
 boolean, positive integer, and list data types as well as conditionals, loops,
-variable setters, imperative do structure, logical connectives, arithmetic
-operators, and exemplary functions calculating summation, factorial, and
-nth fibonacci number. You can build upon that, for example
+variable setters, imperative do structure, logical connectives, and arithmetic
+operators. Also, exemplary functions calculating summation, factorial, and
+nth fibonacci number are provided. You can build upon that, for example
 `real numbers <https://cs.stackexchange.com/questions/2272/representing-negative-and-complex-numbers-using-lambda-calculus?noredirect=1&lq=1>`__,
 even negative complex numbers if that makes any sense. Your imagination is
 really the only limit.
 
 Finally, when investigating the open source ``calchylus`` implementation that is
 hosted on `GitHub <https://github.com/markomanninen/calchylus>`__, one can
-expect to get a good understanding of the combinatory logic, not the least of
-the fixed point combinator or shortly, ϒ combinator.
+expect to get a good understanding of the higher order functions and the
+`combinatory logic <https://en.wikipedia.org/wiki/Combinatory_logic>`__, not the
+least of the fixed point combinator or shortly, ϒ combinator.
 
 
 Quick start
