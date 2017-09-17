@@ -126,8 +126,8 @@ Without going deeper into this yet, we can see that all ``x`` got replaced by
 ``a`` and all ``y`` got replaced by ``b``.
 
 Predefined macros are available as shorthands for the most common Lambda forms.
-For example, calculating the fifth Fibonacci number can be done by using Church
-numeral ``SEVEN`` shorthand and by using the ``FIBONACCI`` shorthand:
+For example, calculating the seventh Fibonacci number can be done by using the
+Church numeral ``SEVEN`` and the ``FIBONACCI`` shorthands:
 
 .. code-block:: hylang
 

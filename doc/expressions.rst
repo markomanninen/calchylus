@@ -4,21 +4,24 @@ Lambda expressions in ``calchylus`` module
 
 All `three concepts and four rules <http://calchylus.readthedocs.io/en/latest/concepts.html>`__
 are implemented in the ``calchylus`` module so that for example the very basic
-Lambda calculus identity application ``λx.x y`` becomes ``(L x , x y)`` in
+Lambda calculus *identity* application ``λx.x y`` becomes ``(L x , x y)`` in
 ``calchylus`` notation. Infact, the function indicator and the separator
-character can be freely defined in ``calchylus``. In the most of the examples
-we will use ``L`` and ``,`` because it will be easier to type ``L`` from the
-keyboard. Using the comma rather than the dot comes from the Hy programming
-language environment restrictions, where the dot is a reserved letter for cons
-in list processing.
+character can be freely defined in ``calchylus`` by
+`with- <http://calchylus.readthedocs.io/en/latest/concepts.html>`__
+initialization macros.
+
+In the most of the examples we will use ``L`` and ``,`` because it will be
+easier to type ``L`` from the keyboard. Using the comma rather than the dot
+comes from the Hy programming language environment restrictions, where the dot
+is a reserved letter for cons in list processing.
 
 Let us strip down the former expression and show how all rules are taking place
 in it.
 
 In ``(L x , x y)``, ``L`` is the Lambda function indicator and parentheses
 ``()`` indicate the whole application that should be evaluated. ``x`` before the
-separator ``,`` is the function argument. ``x`` after the separator is the
-function body or just the Lambda term, as it is more conventionally called.
+separator ``,`` is the function argument. ``x`` after the separator, but
+:underline:`before the next space` is the function body.
 Finally ``y`` is the value for the function, thus we have a full application
 here, rather than just an abstraction. Abstraction would, on the other hand be:
 ``(L x , x)``.

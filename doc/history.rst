@@ -22,8 +22,7 @@ second oldest language after FORTRAN (FORmula TRANslator), both currently in use
 
 In February 1991, van Rossum published the codebase for Python version 0.9.0.
 
-Hy, that is meant to operate as a transparent Lisp front end to Python's AST,
+Hy, that is meant to operate as a transparent LISP front end to Python's AST,
 was introduced at PyCon 2013 by Paul Tagliamonte.
 
-``calchylus`` Lambda calculus module was programmed with Hy by
-Marko Manninen, 08-09/2017.
+``calchylus`` module was programmed with Hy by Marko Manninen in 09/2017.

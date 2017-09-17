@@ -66,6 +66,14 @@ Contents
    expressions
    native
    evaluation
+   inits
    macros
    tests
    references
+
+.. |Output:| replace:: [output]
+
+.. role:: underline
+   :class: underline
+
+.. |copy| unicode:: 0xA9 .. copyright sign
