@@ -40,3 +40,6 @@ with argument name collisions.
 
 Let us first see the easy native implementation of the Lambda calculus to learn
 what all this means.
+
+.. role:: underline
+   :class: underline

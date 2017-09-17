@@ -58,7 +58,7 @@ only macros to the global Hy environment by ``with-macros``.
 
 Similarly, by initializing ``with-alpha-conversion``, macros
 are discarded but alpha conversion is activated. In that case you cannot use
-`macro shorthands <http://calchylus.readthedocs.io/en/latest/concepts.html>`__
+`macro shorthands <http://calchylus.readthedocs.io/en/latest/macros.html>`__
 on Lambda expressions, which may or may not be a good idea, depending on your
 purpose.
 
@@ -71,3 +71,5 @@ the other hand, if there are any arguments that are not bound, not used, or not
 replaced.
 
 Example from notebook...
+
+.. |Output:| replace:: [output]
