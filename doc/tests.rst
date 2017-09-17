@@ -7,6 +7,8 @@ calculus.
 
 just the Lambda term, as it is more conventionally called
 
-|copy|
+|copy| |lambda|
 
 .. |copy| unicode:: 0xA9 .. copyright sign
+
+.. |lambda| unicode:: U+1D706 .. mathematical lambda sign
