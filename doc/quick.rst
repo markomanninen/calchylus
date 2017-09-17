@@ -93,3 +93,5 @@ That is the Church numeral 13, the seventh
 In ``calcylus`` these custom macro shorthands representing Lambda forms serves
 as a mathematical and logical foundation for a prototype programming language
 that is based on purely untyped Lambda calculus.
+
+.. |Output:| replace:: [output]
