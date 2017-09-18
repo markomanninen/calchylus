@@ -135,14 +135,17 @@
             (if (L? f) (setv expr (extend ((type f) (.copy f)) (tuple (rest expr)))))
             ((type expr) (map shift-arguments expr)))))
 
-      ;
+      ; p is extracted lambda expression
       (defn alpha-conversion* [p]
         (setv body (get p "body")
               args (get p "args")
               vals (get p "vals")
+              ; generate argument names for unique ones
               args2 (tuple (map gensym args)))
+        ; replace by new argument names
         (for [[a b] (zip args args2)]
           (setv body (substitute a b body)))
+        ; re-create expression by substituting body and possible values
         (build-lambda [(alpha-conversion body)] args2 (if (empty? vals) vals (alpha-conversion vals))))
 
       ; rename arguments for collision prevention

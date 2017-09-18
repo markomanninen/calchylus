@@ -10,7 +10,8 @@
 
       (setv ; TODO: these could be constructed by some lambda-term-generator macro?
         forms ["CONST" "IDENT" "LET" "LET*" "TRUE" "FALSE"
-               "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL" "LIST"
+               "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL"
+               "LIST" "LAST" "APPEND"
                "NUM" "ZERO" "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
                "ZERO?" "is_ZERO"
                "LEQ?" "is_LEQ" "EQ?" "is_EQ"  "GEQ?" "is_GEQ" "GE?" "is_GE" "LE?" "is_LE"
@@ -22,6 +23,15 @@
         (defn reverse [l] (.reverse l) l)
         ; is expr(ession) a suitable macro form?
         (defn macro-form? [expr] (and (symbol? expr) (in expr forms)))
+        ; helper for append to the end of the list
+        ; TODO: can probably be done more efficiently
+        (defn append* [x l]
+          (if-not (coll? l) l
+            (if (= (second l) 'NIL)
+                (extend (read-str (% "(PAIR %s)" x)) [l])
+                (if (= (first l) 'LIST)
+                    (extend l [x])
+                    ((type l) (genexpr (append* x y) [y l]))))))
         ; expand custom lambda forms to the normal lambda forms
         ; (PAIR TRUE (PAIR TRUE NIL)) should become:
         ; (L a b s , (s a b) (L a b , a) (L a b s , (s a b) (L a b , a) (L a b , b)))
@@ -81,9 +91,20 @@
         (reverse (HyExpression args))))
     ; list sequence constructor
     (defmacro LIST [&rest args]
-      ; fold right with reduce and reverse
+      ; fold right with reduce reverse
       (reduce (fn [x y] `(PAIR ~y ~x))
-        (reverse (HyExpression args)) 'NIL))
+        (reverse (HyExpression args))
+        ; default and the deepest start pair / tuple
+        `(PAIR NIL NIL)))
+    ; append item to the list
+    ;(macro-form APPEND
+    ;  `(~lambdachr a l f x ~separator (f a (l f x))))
+    ;(defmacro APPEND  [&rest args]
+    ;  `(~lambdachr a l x ~separator (x a (l x)) ~@args))
+    ; append n to the end of the list, i.e. change (PAIR m (PAIR NIL NIL)) to
+    ; (PAIR m (PAIR n (PAIR NIL NIL)))
+    (defmacro APPEND [n l &rest args]
+      `(L , ~(append* n l) ~@args))
     ; lambda form macro generator
     (defmacro macro-form [form body]
       `(do
@@ -110,14 +131,23 @@
     (macro-form PAIR `(~lambdachr a b s ~separator (s a b)))
     ; last item of the nested lists should be nil
     (macro-form NIL `(FALSE))
-    ; first item of the list, used as a last parameter of the expression
-    (macro-form FIRST `(TRUE))
-    ; second item of the list, used as a last parameter of the expression
-    (macro-form SECOND `(FALSE))
-    ; first item of the list,
+    ; first item of the list, used as the parent node of the list i.e. cons
     (macro-form HEAD `(~lambdachr s ~separator (s TRUE)))
+    ; last item of the list, used as the parent node of the list i.e. cdr
     (macro-form TAIL `(~lambdachr s ~separator (s FALSE)))
-    (macro-form NIL? `(~lambdachr s ~separator (s FALSE TRUE)))
+    ; first item of the list, same as head or cons
+    (macro-form FIRST `(HEAD))
+    ; second item of the list, head of the tail
+    (macro-form SECOND `(~lambdachr l ~separator (HEAD (TAIL l))))
+    ; is item empty / EMPTY?
+    ;(macro-form NIL? `(~lambdachr s ~separator (s FALSE TRUE)))
+    (macro-form NIL? `(~lambdachr s ~separator (s (~lambdachr a ~separator FALSE) TRUE)))
+    ;(macro-form NIL? `(~lambdachr s ~separator (s (~lambdachr a b ~separator FALSE) TRUE)))
+    ;(macro-form NIL? `(~lambdachr s ~separator (s (~lambdachr a b c ~separator FALSE) TRUE)))
+    ; last item of the list
+    (macro-form LAST
+      `(YCOMB (~lambdachr f l ~separator
+          (COND (NIL? (HEAD (TAIL l))) (HEAD l) (f (TAIL l))))))
     ;--------------------------------
     ; zero forms
     ;--------------------------------
