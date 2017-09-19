@@ -54,6 +54,11 @@ least of the fixed point combinator or shortly, ϒ combinator:
 
 $$\\Large ϒ = 𝜆x.(𝜆y.x \\space (y \\space y)) \\space (𝜆y.x \\space (y \\space y))$$
 
+The `MIT <http://choosealicense.com/licenses/mit/>`__ License
+-------------------------------------------------------------
+
+Copyright (c) 2017 Marko Manninen
+
 Contents
 --------
 

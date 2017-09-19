@@ -2,6 +2,8 @@
 Quick start
 ===========
 
+For people willing to get hands quickly on coding:
+
 **Install**
 
 .. code-block:: bash

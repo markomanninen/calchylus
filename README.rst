@@ -54,6 +54,8 @@ least of the fixed point combinator or shortly, ϒ combinator.
 Quick start
 -----------
 
+For people willing to get hands quickly on coding:
+
 **Install**
 
 .. code-block:: bash
