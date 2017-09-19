@@ -9,11 +9,12 @@
     (eval-and-compile
 
       (setv ; TODO: these could be constructed by some lambda-term-generator macro?
-        forms ["CONST" "IDENT" "LET" "LET*" "TRUE" "FALSE"
+        forms ["CONST" "IDENT" "LET" "LET*"
+               "TRUE" "FALSE" "TRUE?" "is_TRUE" "FALSE?" "is_FALSE"
                "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL"
                "LIST" "LAST" "APPEND"
                "NUM" "ZERO" "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
-               "ZERO?" "is_ZERO"
+               "ZERO?" "is_ZERO" "EMPTY?" "is_EMPTY" "NUM?" "is_NUM"
                "LEQ?" "is_LEQ" "EQ?" "is_EQ"  "GEQ?" "is_GEQ" "GE?" "is_GE" "LE?" "is_LE"
                "COND" "AND" "OR" "NOT" "XOR" "IMP"
                "SUCC" "PRED"  "SUM" "SUB" "PROD" "EXP"
@@ -115,56 +116,62 @@
         (defmacro ~form [&rest args] (extend ~body args))))
     ; lambda application wrapper. Y application sharp macro can also be used
     ; identically with APP macro
-    (macro-form APP `(~lambdachr ~separator))
+    (macro-form APP    `(~lambdachr ~separator))
     ;--------------------------------
     ; basic forms
     ;--------------------------------
     ; identity, return passed argument as it is
-    (macro-form IDENT `(~lambdachr a ~separator a))
+    (macro-form IDENT  `(~lambdachr a ~separator a))
     ; booleans
-    (macro-form TRUE `(~lambdachr a b ~separator a))
-    (macro-form FALSE `(~lambdachr a b ~separator b))
+    (macro-form TRUE   `(~lambdachr a b ~separator a))
+    (macro-form FALSE  `(~lambdachr a b ~separator b))
+    (macro-form FALSE? `(~lambdachr s ~separator (s FALSE TRUE TRUE FALSE)))
+    (macro-form TRUE?  `(~lambdachr s ~separator (NOT (NIL? s FALSE) TRUE FALSE)))
     ;--------------------------------
     ; list forms
     ;--------------------------------
     ; make a pair for list
-    (macro-form PAIR `(~lambdachr a b s ~separator (s a b)))
+    (macro-form PAIR   `(~lambdachr a b s ~separator (s a b)))
     ; last item of the nested lists should be nil
-    (macro-form NIL `(FALSE))
+    (macro-form NIL    `(FALSE))
     ; first item of the list, used as the parent node of the list i.e. cons
-    (macro-form HEAD `(~lambdachr s ~separator (s TRUE)))
+    (macro-form HEAD   `(~lambdachr s ~separator (s TRUE)))
     ; last item of the list, used as the parent node of the list i.e. cdr
-    (macro-form TAIL `(~lambdachr s ~separator (s FALSE)))
+    (macro-form TAIL   `(~lambdachr s ~separator (s FALSE)))
     ; first item of the list, same as head or cons
-    (macro-form FIRST `(HEAD))
+    (macro-form FIRST  `(HEAD))
     ; second item of the list, head of the tail
     (macro-form SECOND `(~lambdachr l ~separator (HEAD (TAIL l))))
     ; is item empty / EMPTY?
     ;(macro-form NIL? `(~lambdachr s ~separator (s FALSE TRUE)))
-    (macro-form NIL? `(~lambdachr s ~separator (s (~lambdachr a ~separator FALSE) TRUE)))
-    ;(macro-form NIL? `(~lambdachr s ~separator (s (~lambdachr a b ~separator FALSE) TRUE)))
-    ;(macro-form NIL? `(~lambdachr s ~separator (s (~lambdachr a b c ~separator FALSE) TRUE)))
+    (macro-form NIL?   `(~lambdachr s ~separator (s (~lambdachr a ~separator FALSE) TRUE)))
+    ;(macro-form NIL?   `(~lambdachr s ~separator (s (~lambdachr a b ~separator FALSE) TRUE)))
+    ;(macro-form NIL?   `(~lambdachr s ~separator (s (~lambdachr a b c ~separator FALSE) TRUE)))
     ; last item of the list
     (macro-form LAST
       `(YCOMB (~lambdachr f l ~separator
           (COND (NIL? (HEAD (TAIL l))) (HEAD l) (f (TAIL l))))))
+    ; is empty list
+    (macro-form EMPTY? `(~lambdachr s ~separator (s TRUE FALSE TRUE TRUE FALSE)))
+    ; NUM?
+    (macro-form NUM?   `(~lambdachr s ~separator (s TRUE TRUE FALSE)))
     ;--------------------------------
     ; zero forms
     ;--------------------------------
-    (macro-form ZERO `(FALSE))
-    (macro-form ZERO? `(~lambdachr n ~separator (n (~lambdachr a ~separator FALSE) TRUE)))
+    (macro-form ZERO   `(FALSE))
+    (macro-form ZERO?  `(~lambdachr n ~separator (n (~lambdachr a ~separator FALSE) TRUE)))
     ;--------------------------------
     ; logic forms
     ;--------------------------------
-    (macro-form COND `(~lambdachr p a b ~separator (p a b)))
-    ; (macro-form AND `(~lambdachr a b , (a b a)))
-    (macro-form AND `(~lambdachr a b ~separator (a b FALSE)))
-    ; (macro-form OR `(~lambdachr a b , (a a b)))
-    (macro-form OR `(~lambdachr a b ~separator (a TRUE b)))
-    ; (macro-form OR `(~lambdachr p a b , (p b a))) ?
-    (macro-form NOT `(~lambdachr p ~separator (p FALSE TRUE)))
-    (macro-form XOR `(~lambdachr a b ~separator (a (NOT b) b)))
-    (macro-form IMP `(~lambdachr a b ~separator (OR (NOT a) b)))
+    (macro-form COND   `(~lambdachr p a b ~separator (p a b)))
+    ; (macro-form AND   `(~lambdachr a b , (a b a)))
+    (macro-form AND    `(~lambdachr a b ~separator (a b FALSE)))
+    ; (macro-form OR    `(~lambdachr a b , (a a b)))
+    (macro-form OR     `(~lambdachr a b ~separator (a TRUE b)))
+    ; (macro-form OR    `(~lambdachr p a b , (p b a))) ?
+    (macro-form NOT    `(~lambdachr p ~separator (p FALSE TRUE)))
+    (macro-form XOR    `(~lambdachr a b ~separator (a (NOT b) b)))
+    (macro-form IMP    `(~lambdachr a b ~separator (OR (NOT a) b)))
     ; church number generator: (NUM 3) ; -> (L x y , (x (x (x y))))
     ; launch application: (NUM 3 a b) ; -> (a (a (a b)))
     (defmacro NUM [n &rest args]
@@ -193,23 +200,23 @@
       `(~lambdachr n x y ~separator (n (~lambdachr g h ~separator (h (g x))) (~lambdachr x ~separator y) IDENT)))
     ; sum (x+y) two numbers together
     ;(macro-form SUM `(L m n , (m SUCC n)))
-    (macro-form SUM `(~lambdachr m n x y ~separator (m x (n x y))))
+    (macro-form SUM  `(~lambdachr m n x y ~separator (m x (n x y))))
     ; substract (x-y) two numbers from each other
-    (macro-form SUB `(~lambdachr m n ~separator (m PRED n)))
+    (macro-form SUB  `(~lambdachr m n ~separator (m PRED n)))
     ; multiplication (x*y), product of two numbers
     (macro-form PROD `(~lambdachr m n x y ~separator (m (n x) y)))
     ; exponent (x^y)
-    (macro-form EXP `(~lambdachr m n x y ~separator (n m x y)))
+    (macro-form EXP  `(~lambdachr m n x y ~separator (n m x y)))
     ; lesser or equals
     (macro-form LEQ? `(~lambdachr m n ~separator (ZERO? (n PRED m))))
     ; equals
-    (macro-form EQ? `(~lambdachr m n ~separator (AND (LEQ? m n) (LEQ? n m))))
+    (macro-form EQ?  `(~lambdachr m n ~separator (AND (LEQ? m n) (LEQ? n m))))
     ; greater
-    (macro-form GE? `(~lambdachr m n ~separator (NOT (LEQ? m n))))
+    (macro-form GE?  `(~lambdachr m n ~separator (NOT (LEQ? m n))))
     ; greater or equals
     (macro-form GEQ? `(~lambdachr m n ~separator (OR (GE? m n) (EQ? m n))))
     ; lesser
-    (macro-form LE? `(~lambdachr m n ~separator (NOT (GEQ? m n))))
+    (macro-form LE?  `(~lambdachr m n ~separator (NOT (GEQ? m n))))
     ; self application
     (macro-form SELF `(~lambdachr f x ~separator (f f x)))
     ; ϒ combinator
