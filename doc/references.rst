@@ -17,3 +17,6 @@ by Peter Selinger
 
 `A Brief History of Computing <https://books.google.fi/books?id=QqrItgm351EC&printsec=frontcover>`__
 by Gerard O'Regan
+
+`The Lambda Calculus <https://plato.stanford.edu/entries/lambda-calculus/>`__
+in the Stanford Encyclopedia of Philosophy.
