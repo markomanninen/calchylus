@@ -10,13 +10,13 @@
 
       (setv ; TODO: these could be constructed by some lambda-term-generator macro?
         forms ["CONST" "IDENT" "LET" "LET*"
-               "TRUE" "FALSE" "TRUE?" "is_TRUE" "FALSE?" "is_FALSE"
+               "TRUE" "FALSE"
                "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL"
                "LIST" "LAST" "APPEND"
                "NUM" "ZERO" "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
                "ZERO?" "is_ZERO" "EMPTY?" "is_EMPTY" "NUM?" "is_NUM"
                "LEQ?" "is_LEQ" "EQ?" "is_EQ"  "GEQ?" "is_GEQ" "GE?" "is_GE" "LE?" "is_LE"
-               "COND" "AND" "OR" "NOT" "XOR" "IMP"
+               "COND" "AND" "OR" "NOT" "XOR" "IMP" "EQV"
                "SUCC" "PRED"  "SUM" "SUB" "PROD" "EXP"
                "SELF" "YCOMB" "DO" "APP"
                "SUMMATION" "FACTORIAL" "FIBONACCI"])
@@ -125,8 +125,6 @@
     ; booleans
     (macro-form TRUE   `(~lambdachr a b ~separator a))
     (macro-form FALSE  `(~lambdachr a b ~separator b))
-    (macro-form FALSE? `(~lambdachr s ~separator (s FALSE TRUE TRUE FALSE)))
-    (macro-form TRUE?  `(~lambdachr s ~separator (NOT (NIL? s FALSE) TRUE FALSE)))
     ;--------------------------------
     ; list forms
     ;--------------------------------
@@ -153,13 +151,13 @@
           (COND (NIL? (HEAD (TAIL l))) (HEAD l) (f (TAIL l))))))
     ; is empty list
     (macro-form EMPTY? `(~lambdachr s ~separator (s TRUE FALSE TRUE TRUE FALSE)))
-    ; NUM?
-    (macro-form NUM?   `(~lambdachr s ~separator (s TRUE TRUE FALSE)))
+    ; NUM? any number from one and up or ZERO / FALSE
+    (macro-form NUM?   `(~lambdachr s ~separator (OR (NOT s) (s TRUE TRUE FALSE))))
     ;--------------------------------
     ; zero forms
     ;--------------------------------
     (macro-form ZERO   `(FALSE))
-    (macro-form ZERO?  `(~lambdachr n ~separator (n (~lambdachr a ~separator FALSE) TRUE)))
+    (macro-form ZERO?  `(~lambdachr n ~separator (NIL? n)))
     ;--------------------------------
     ; logic forms
     ;--------------------------------
@@ -170,8 +168,12 @@
     (macro-form OR     `(~lambdachr a b ~separator (a TRUE b)))
     ; (macro-form OR    `(~lambdachr p a b , (p b a))) ?
     (macro-form NOT    `(~lambdachr p ~separator (p FALSE TRUE)))
+    ; exlusive or
     (macro-form XOR    `(~lambdachr a b ~separator (a (NOT b) b)))
+    ; implication
     (macro-form IMP    `(~lambdachr a b ~separator (OR (NOT a) b)))
+    ; equivalence / xnor
+    (macro-form EQV    `(~lambdachr a b ~separator (NOT (XOR a b))))
     ; church number generator: (NUM 3) ; -> (L x y , (x (x (x y))))
     ; launch application: (NUM 3 a b) ; -> (a (a (a b)))
     (defmacro NUM [n &rest args]
