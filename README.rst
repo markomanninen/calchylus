@@ -31,7 +31,8 @@ Lambda calculus, on the other hand, reveals how the computation in logic is
 done by manipulation of the Lambda terms. Manipulation rules are simple and
 were originally made with a paper and a pen, but now we rather use computers for
 the task. Lambda calculus also addresses the problem, what can be proved and
-solved and what cannot be computed in a finite time.
+solved and what cannot be computed in a finite time. Formally these are called
+the decidability and the halting problem.
 
 Beside evaluating Lambda expressions, ``calchylus`` module can serve as a
 starting point for a mini programming language. Via custom macros representing
