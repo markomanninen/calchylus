@@ -49,15 +49,17 @@ Structural constructors
 
 List constructors
 
-- NIL
 - LIST
 - PREPEND
 - APPEND
 - FIRST
 - SECOND
 - LAST
-- NIL?
 - EMPTY?
+- LEN?
+- NIL?
+- NIL
+- ``∅`` empty set
 
 Church numerals
 
