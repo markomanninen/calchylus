@@ -9,14 +9,26 @@ For people willing to get hands quickly on coding:
 .. code-block:: bash
 
 	$ pip install hy calchylus
+
+**Open Hy**
+
+.. code-block:: bash
+
 	$ hy
 
-**Run**
+**Import**
 
 .. code-block:: hylang
 
 	(require [calchylus.lambdas [*]])
+
+**Initialize**
+
+.. code-block:: hylang
+
 	(with-alpha-conversion-and-macros L ,)
+
+**Lambda dance**
 
 .. code-block:: hylang
 
@@ -46,12 +58,17 @@ Open Hy, since ``calchylus`` is mostly written as Hy macros:
 
 	$ hy
 
-Import Lambda calculus macros and define Lambda function indicator letter ``L``
-and Lambda argument-body separator character ``,``:
+Import Lambda calculus macros:
 
 .. code-block:: hylang
 
 	(require [calchylus.lambdas [*]])
+
+Define Lambda function indicator letter ``L`` and Lambda argument-body
+separator character ``,`` with one of the `initializer macros`_:
+
+__.. code-block:: hylang
+
 	(with-alpha-conversion-and-macros L ,)
 
 By ``with-alpha-conversion-and-macros`` we want to say that arguments should
@@ -59,8 +76,7 @@ be internally renamed to prevent argument name collision and that we want to
 load custom macros representing Lambda forms.
 
 Now, we are ready to evaluate Lambda expressions. Here we apply
-`Church numeral <https://en.wikipedia.org/wiki/Church_encoding>`__  five to
-the two values, ``a`` and ``b``:
+`Church numeral`_  five to the two values, ``a`` and ``b``:
 
 .. code-block:: hylang
 
@@ -89,11 +105,14 @@ Church numeral ``SEVEN`` and the ``FIBONACCI`` shorthands:
 
 	(x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
-That is the Church numeral 13, the seventh
-`Fibonacci number <https://en.wikipedia.org/wiki/Fibonacci_number>`__.
+That is the Church numeral 13, the seventh `Fibonacci number`_.
 
 In ``calcylus`` these custom macro shorthands representing Lambda forms serves
 as a mathematical and logical foundation for a prototype programming language
 that is based on purely untyped Lambda calculus.
 
 .. |Output:| replace:: [output]
+
+.. _Church numeral: https://en.wikipedia.org/wiki/Church_encoding
+.. _Fibonacci number: https://en.wikipedia.org/wiki/Fibonacci_number
+.. _initializer macros: http://calchylus.readthedocs.io/en/latest/inits.html
