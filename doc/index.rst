@@ -76,4 +76,4 @@ Contents
 .. _decidability: https://plato.stanford.edu/entries/computability/#UnsHalPro
 .. _Andrew Bayer: http://math.andrej.com/2016/08/30/formal-proofs-are-not-just-deduction-steps/
 .. _Lambda calculus: https://en.wikipedia.org/wiki/Lambda_calculus
--- _Hy: http://docs.hylang.org
+.. _Hy: http://docs.hylang.org
