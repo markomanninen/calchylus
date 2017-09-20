@@ -57,7 +57,7 @@ Contents
    :maxdepth: 3
 
    quick
-   theory
+   theory/*
    concepts
    expressions
    native
