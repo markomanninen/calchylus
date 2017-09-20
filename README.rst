@@ -91,7 +91,8 @@ Explanation
 -----------
 
 ``calchylus`` module works in Windows, Linux, and MacOS operating systems.
-Python 2.7 or 3.6 and greater are required.
+Python 2.7 or 3.6 and greater are required. The whole great Python ecosystem
+can be installed from `Anaconda`_.
 
 Install Hy language interpreter and ``calchylus`` module by using ``pip``
 Python package management tool:
@@ -139,7 +140,7 @@ Now, we are ready to evaluate Lambda expressions. Here we apply
 Without going deeper into this yet, we can see that all ``x`` got replaced by
 ``a`` and all ``y`` got replaced by ``b``.
 
-Predefined macros are available as shorthands for the most common Lambda forms.
+Predefined macros are available as `shorthands`_ for the most common Lambda forms.
 For example, calculating the seventh Fibonacci number can be done by using the
 Church numeral ``SEVEN`` and the ``FIBONACCI`` shorthands:
 
@@ -155,7 +156,7 @@ Church numeral ``SEVEN`` and the ``FIBONACCI`` shorthands:
 
 That is the Church numeral 13, the seventh `Fibonacci number`_.
 
-In ``calcylus`` these custom macro shorthands representing Lambda forms serves
+In ``calcylus`` these custom macro `shorthands`_ representing Lambda forms serves
 as a mathematical and logical foundation for a prototype programming language
 that is based on purely untyped Lambda calculus.
 
@@ -293,6 +294,8 @@ Copyright |copy| 2017 Marko Manninen
 .. _Lambda calculus: https://en.wikipedia.org/wiki/Lambda_calculus
 .. _Hy: http://docs.hylang.org
 
+.. _Anaconda: https://www.anaconda.com/download/
+.. _shorthands: http://calchylus.readthedocs.io/en/latest/macros.html
 .. _Church numeral: https://en.wikipedia.org/wiki/Church_encoding
 .. _Fibonacci number: https://en.wikipedia.org/wiki/Fibonacci_number
 .. _initializer macros: http://calchylus.readthedocs.io/en/latest/inits.html
