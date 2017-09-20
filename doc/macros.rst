@@ -43,7 +43,7 @@ Structural constructors
 
 2-tuple constructor
 
-- ``PAIR`` an ordered pair
+- ``PAIR`` a `nested ordered pair <https://en.wikipedia.org/wiki/Tuple#Tuples_as_nested_ordered_pairs>`__
 - ``HEAD``
 - ``TAIL``
 
