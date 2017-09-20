@@ -58,8 +58,8 @@ List constructors
 - ``FIRST`` - the first item of the list
 - ``SECOND`` - the second item of the list
 - ``LAST`` - the last item of the list
+- ``LEN`` - length of the list
 - ``EMPTY?`` - is given term an empty list?
-- ``LEN?`` - length of the list?
 - ``NIL?`` - is given term nil?
 
 - Internal
@@ -102,6 +102,6 @@ Recursive constructors
 
 Sample mathematical functions
 
-- ``SUMMATION`` - thte nth triangular number
+- ``SUMMATION`` - the nth triangular number
 - ``FACTORIAL`` - a product of numbers up to n
 - ``FIBONACCI`` - the nth Fibonacci number
