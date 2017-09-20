@@ -2,23 +2,50 @@
 Macro shorthands
 ================
 
-All available macros for Lambda forms are:
+Whilst in Lambda calculus there is no limit on how many or what kind of forms
+one can create, there is a set of common forms useful for constructing Lambda
+expressions. Named forms are provided as macros in Hy based ``calchylus``
+module and they serve for shorthands when coding in Lambda calculus. Named forms
+are useful in explaining Lambda calculus and they make expressions more compact,
+readable, and understandable.
+
+This is the list of the all available macros for Lambda forms in ``calchylus``
+module:
 
 Basic constructors
 
-- CONST
-- IDENT
+- ``APP`` (application)
+- ``CONST`` constant
+- ``IDENT`` - identity
 
 Boolean constructors
 
-- TRUE
-- FALSE
+- ``TRUE``
+- ``FALSE``
 
-Tuple constructors
+Logical connective constructors
 
-- PAIR
-- HEAD
-- TAIL
+- Unary
+  - ``NOT``
+
+- Binary
+  - ``AND``
+  - ``OR``
+  - ``XOR``
+  - ``IMP``
+  - ``EQV``
+
+Structural constructors
+
+- ``COND`` a condition block for flow control
+- ``LET``, ``LET*``
+- ``DO`` do in sequence
+
+2-tuple constructor
+
+- ``PAIR`` an ordered pair
+- ``HEAD``
+- ``TAIL``
 
 List constructors
 
@@ -47,22 +74,6 @@ Number equivalence
 - GEQ?
 - LE?
 - GE?
-
-Logic constructors
-
-- AND
-- OR
-- NOT
-- XOR
-- IMP
-- EQV
-
-Structural constructors
-
-- COND
-- LET, LET*
-- DO
-- APP
 
 Arithmetic constructors
 
