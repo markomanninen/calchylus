@@ -9,10 +9,9 @@ Intro
 that is used to evaluate, and furthermore through this documentation, shine
 light to the basics of Lambda calculus (also written as λ-calculus).
 
-	`Lambda calculus <https://en.wikipedia.org/wiki/Lambda_calculus>`__ is a
-	formal system in mathematical logic for expressing computation that is
-	based on function abstraction and application using variable binding and
-	substitution.
+	`Lambda calculus`_ is a formal system in mathematical logic for expressing
+	computation that is based on function abstraction and application using
+	variable binding and substitution.
 
 The target audience is those who:
 
@@ -32,7 +31,8 @@ done by manipulation of the Lambda terms. Manipulation rules are simple and
 were originally made with a paper and a pen, but now we rather use computers for
 the task. Lambda calculus also addresses the problem, what can be proved and
 solved and what cannot be computed in a finite time. Formally these are called
-the decidability and the halting problem.
+the decidability and the
+`halting problem <http://www.huffingtonpost.com/entry/how-to-describing-alan-turings-halting-problem-to_us_58d1ae08e4b062043ad4add7>`__.
 
 Beside evaluating Lambda expressions, ``calchylus`` module can serve as a
 starting point for a mini programming language. Via custom macros representing
@@ -266,3 +266,14 @@ The `MIT <http://choosealicense.com/licenses/mit/>`__ License
 Copyright (c) 2017 Marko Manninen
 
 .. |Output:| replace:: [output]
+
+.. _halting problem: http://www.huffingtonpost.com/entry/how-to-describing-alan-turings-halting-problem-to_us_58d1ae08e4b062043ad4add7
+.. _combinatory logic: https://en.wikipedia.org/wiki/Combinatory_logic
+.. _GitHub: https://github.com/markomanninen/calchylus
+.. _real numbers: https://cs.stackexchange.com/questions/2272/representing-negative-and-complex-numbers-using-lambda-calculus?noredirect=1&lq=1
+.. _my favorite programming language: http://www.python.org
+.. _custom macros: http://calchylus.readthedocs.io/en/latest/macros.html
+.. _decidability: https://plato.stanford.edu/entries/computability/#UnsHalPro
+.. _Andrew Bayer: http://math.andrej.com/2016/08/30/formal-proofs-are-not-just-deduction-steps/
+.. _Lambda calculus: https://en.wikipedia.org/wiki/Lambda_calculus
+.. _Hy: http://docs.hylang.org

@@ -9,10 +9,9 @@ Intro
 that is used to evaluate, and furthermore through this documentation, shine
 light to the basics of Lambda calculus (also written as λ-calculus).
 
-	`Lambda calculus <https://en.wikipedia.org/wiki/Lambda_calculus>`__ is a
-	formal system in mathematical logic for expressing computation that is
-	based on function abstraction and application using variable binding and
-	substitution.
+	`Lambda calculus`_ is a formal system in mathematical logic for expressing
+	computation that is based on function abstraction and application using
+	variable binding and substitution.
 
 The target audience is those who:
 
@@ -80,3 +79,14 @@ For people willing to get hands quickly on coding:
 	(FIBONACCI SEVEN) ; output: (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
 .. |Output:| replace:: [output]
+
+.. _halting problem: http://www.huffingtonpost.com/entry/how-to-describing-alan-turings-halting-problem-to_us_58d1ae08e4b062043ad4add7
+.. _combinatory logic: https://en.wikipedia.org/wiki/Combinatory_logic
+.. _GitHub: https://github.com/markomanninen/calchylus
+.. _real numbers: https://cs.stackexchange.com/questions/2272/representing-negative-and-complex-numbers-using-lambda-calculus?noredirect=1&lq=1
+.. _my favorite programming language: http://www.python.org
+.. _custom macros: http://calchylus.readthedocs.io/en/latest/macros.html
+.. _decidability: https://plato.stanford.edu/entries/computability/#UnsHalPro
+.. _Andrew Bayer: http://math.andrej.com/2016/08/30/formal-proofs-are-not-just-deduction-steps/
+.. _Lambda calculus: https://en.wikipedia.org/wiki/Lambda_calculus
+.. _Hy: http://docs.hylang.org
