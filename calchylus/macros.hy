@@ -12,9 +12,9 @@
         forms ["CONST" "IDENT" "LET" "LET*"
                "TRUE" "FALSE"
                "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL"
-               "LIST" "LAST" "APPEND"
+               "LIST" "LAST" "PREPEND" "APPEND"
                "NUM" "ZERO" "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
-               "ZERO?" "is_ZERO" "EMPTY?" "is_EMPTY" "NUM?" "is_NUM"
+               "ZERO?" "is_ZERO" "EMPTY?" "is_EMPTY" "NUM?" "is_NUM" "LEN"
                "LEQ?" "is_LEQ" "EQ?" "is_EQ"  "GEQ?" "is_GEQ" "GE?" "is_GE" "LE?" "is_LE"
                "COND" "AND" "OR" "NOT" "XOR" "IMP" "EQV"
                "SUCC" "PRED"  "SUM" "SUB" "PROD" "EXP"
@@ -136,15 +136,12 @@
     (macro-form HEAD   `(~lambdachr s ~separator (s TRUE)))
     ; last item of the list, used as the parent node of the list i.e. cdr
     (macro-form TAIL   `(~lambdachr s ~separator (s FALSE)))
+		; prepend to the beginning of the list
+		(macro-form PREPEND `(PAIR))
     ; first item of the list, same as head or cons
     (macro-form FIRST  `(HEAD))
     ; second item of the list, head of the tail
     (macro-form SECOND `(~lambdachr l ~separator (HEAD (TAIL l))))
-    ; is item empty / EMPTY?
-    ;(macro-form NIL? `(~lambdachr s ~separator (s FALSE TRUE)))
-    (macro-form NIL?   `(~lambdachr s ~separator (s (~lambdachr a ~separator FALSE) TRUE)))
-    ;(macro-form NIL?   `(~lambdachr s ~separator (s (~lambdachr a b ~separator FALSE) TRUE)))
-    ;(macro-form NIL?   `(~lambdachr s ~separator (s (~lambdachr a b c ~separator FALSE) TRUE)))
     ; last item of the list
     (macro-form LAST
       `(YCOMB (~lambdachr f l ~separator
@@ -153,6 +150,10 @@
     (macro-form EMPTY? `(~lambdachr s ~separator (s TRUE FALSE TRUE TRUE FALSE)))
     ; NUM? any number from one and up or ZERO / FALSE
     (macro-form NUM?   `(~lambdachr s ~separator (OR (NOT s) (s TRUE TRUE FALSE))))
+    ; is item empty / EMPTY?
+    (macro-form NIL?   `(~lambdachr s ~separator (s (~lambdachr a ~separator FALSE) TRUE)))
+		; length of the list
+    (macro-form LEN    `(~lambdachr ~separator))
     ;--------------------------------
     ; zero forms
     ;--------------------------------
