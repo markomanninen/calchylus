@@ -115,7 +115,7 @@ Import Lambda calculus macros:
 Define Lambda function indicator letter ``L`` and Lambda argument-body
 separator character ``,`` with one of the `initializer macros`_:
 
-__.. code-block:: hylang
+.. code-block:: hylang
 
 	(with-alpha-conversion-and-macros L ,)
 
@@ -158,6 +158,10 @@ That is the Church numeral 13, the seventh `Fibonacci number`_.
 In ``calcylus`` these custom macro shorthands representing Lambda forms serves
 as a mathematical and logical foundation for a prototype programming language
 that is based on purely untyped Lambda calculus.
+
+
+Theory
+======
 
 
 Concepts of Lambda calculus
@@ -270,12 +274,13 @@ has some meaning on extensibility of the function and proofing if forms are
 same or not.
 
 
-The `MIT <http://choosealicense.com/licenses/mit/>`__ License
+The `MIT`_ License
 -------------------------------------------------------------
 
-Copyright (c) 2017 Marko Manninen
+Copyright |copy| 2017 Marko Manninen
 
 .. |Output:| replace:: [output]
+.. |copy| unicode:: 0xA9 .. copyright sign
 
 .. _halting problem: http://www.huffingtonpost.com/entry/how-to-describing-alan-turings-halting-problem-to_us_58d1ae08e4b062043ad4add7
 .. _combinatory logic: https://en.wikipedia.org/wiki/Combinatory_logic
@@ -291,3 +296,5 @@ Copyright (c) 2017 Marko Manninen
 .. _Church numeral: https://en.wikipedia.org/wiki/Church_encoding
 .. _Fibonacci number: https://en.wikipedia.org/wiki/Fibonacci_number
 .. _initializer macros: http://calchylus.readthedocs.io/en/latest/inits.html
+
+.. _MIT: http://choosealicense.com/licenses/mit/

@@ -67,7 +67,7 @@ Import Lambda calculus macros:
 Define Lambda function indicator letter ``L`` and Lambda argument-body
 separator character ``,`` with one of the `initializer macros`_:
 
-__.. code-block:: hylang
+.. code-block:: hylang
 
 	(with-alpha-conversion-and-macros L ,)
 
