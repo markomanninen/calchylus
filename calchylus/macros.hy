@@ -8,13 +8,15 @@
 
     (eval-and-compile
 
-      (setv ; TODO: these could be constructed by some lambda-term-generator macro?
+      (setv
         forms ["CONST" "IDENT" "LET" "LET*"
                "TRUE" "FALSE"
-               "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL"
-               "LIST" "LAST" "PREPEND" "APPEND"
+               "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "EMPTY"
+               "NULL" "FOLD-LEFT" "FOLD-RIGHT" "MAP" "APPLY" "REVERSE" "LIST*"
+               "LIST" "LAST" "PREPEND" "APPEND" "LEN"
+               "NIL?" "is_NIL" "EMPTY?" "is_EMPTY"
                "NUM" "ZERO" "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
-               "ZERO?" "is_ZERO" "EMPTY?" "is_EMPTY" "NUM?" "is_NUM" "LEN"
+               "ZERO?" "is_ZERO" "NUM?" "is_NUM"
                "LEQ?" "is_LEQ" "EQ?" "is_EQ"  "GEQ?" "is_GEQ" "GE?" "is_GE" "LE?" "is_LE"
                "COND" "AND" "OR" "NOT" "XOR" "IMP" "EQV"
                "SUCC" "PRED"  "SUM" "SUB" "PROD" "EXP"
@@ -96,7 +98,7 @@
       (reduce (fn [x y] `(PAIR ~y ~x))
         (reverse (HyExpression args))
         ; default and the deepest start pair / tuple
-        `(PAIR NIL NIL)))
+        `(EMPTY)))
     ; append item to the list
     ;(macro-form APPEND
     ;  `(~lambdachr a l f x ~separator (f a (l f x))))
@@ -131,7 +133,9 @@
     ; make a pair for list
     (macro-form PAIR   `(~lambdachr a b s ~separator (s a b)))
     ; last item of the nested lists should be nil
-    (macro-form NIL    `(FALSE))
+    (macro-form NIL    `(L x , TRUE))
+    ; empty last entry of the list
+    (macro-form EMPTY  `(PAIR NIL NIL))
     ; first item of the list, used as the parent node of the list i.e. cons
     (macro-form HEAD   `(~lambdachr s ~separator (s TRUE)))
     ; last item of the list, used as the parent node of the list i.e. cdr
@@ -145,19 +149,48 @@
     ; last item of the list
     (macro-form LAST
       `(YCOMB (~lambdachr f l ~separator
-          (COND (NIL? (HEAD (TAIL l))) (HEAD l) (f (TAIL l))))))
+          (COND (EMPTY? (TAIL l)) (HEAD l) (f (TAIL l))))))
     ; is empty list
-    (macro-form EMPTY? `(~lambdachr s ~separator (s TRUE FALSE TRUE TRUE FALSE)))
+    (macro-form EMPTY? `(~lambdachr l ~separator ((TAIL l) (~lambdachr h t ~separator FALSE))))
     ; NUM? any number from one and up or ZERO / FALSE
-    (macro-form NUM?   `(~lambdachr s ~separator (OR (NOT s) (s TRUE TRUE FALSE))))
+    (macro-form NUM?   `(~lambdachr n ~separator (OR (NOT n) (n TRUE TRUE FALSE))))
     ; is item empty / EMPTY?
     (macro-form NIL?   `(~lambdachr s ~separator (s (~lambdachr a ~separator FALSE) TRUE)))
 		; length of the list
-    (macro-form LEN    `(~lambdachr ~separator))
+    (macro-form LEN
+      `(YCOMB (~lambdachr f l ~separator (COND (EMPTY? l) ZERO (SUM ONE (f (TAIL l)))))))
+    ; index i of the list l
+    (macro-form INDEX  `(~lambdachr l i ~separator (HEAD (i TAIL l))))
+    (macro-form NULL
+      `(~lambdachr p ~separator (p (~lambdachr x y ~separator FALSE))))
+    ;FOLD-LEFT := Y (λgfex. NULL x e (g f (f e (CAR x)) (CDR x)))
+    (macro-form FOLD-LEFT
+      `(YCOMB (~lambdachr g f e x ~separator (NULL x e (g f (f e (HEAD x)) (TAIL x))))))
+    ;FOLD-RIGHT := λfex. Y (λgy. NULL y e (f (CAR y) (g (CDR y)))) x
+    (macro-form FOLD-RIGHT
+      `(~lambdachr f e x ~separator
+        (YCOMB (~lambdachr g y ~separator (NULL y e (f (HEAD y) (g (TAIL y))))) x)))
+    ;APPLY f x — passes the elements of the list x to f:
+    ;APPLY := Y (λgfx. NULL x f (g (f (CAR x)) (CDR x)))
+    (macro-form APPLY
+      `(YCOMB (~lambdachr g f x ~separator (NULL x f (g (f (HEAD x)) (TAIL x))))))
+    ;MAP f x — maps each element of the list x through f:
+    ;MAP := Y (λgfx. NULL x NIL (PAIR (f (CAR x)) (g f (CDR x))))
+    (macro-form MAP
+      `(YCOMB (~lambdachr g f x ~separator (NULL x NIL (PAIR (f (HEAD x)) (g f (TAIL x)))))))
+    ;REVERSE := Y (λgal. NULL l a (g (PAIR (CAR l) a) (CDR l))) NIL
+    (macro-form REVERSE
+      `(YCOMB (~lambdachr g a l ~separator (NULL l a (g (PAIR (HEAD l) a) (TAIL l)))) NIL))
+    ; LIST n a0 a1 ... an-1 — evaluates to a0 ... an-1 as a list
+    ; LIST := λn. n (λfax. f (PAIR x a)) REVERSE NIL
+    ; (LIST* THREE ONE TWO THREE)
+    (macro-form LIST*
+      `(~lambdachr n ~separator (n (~lambdachr f a x ~separator (f (PAIR x a))) REVERSE NIL)))
     ;--------------------------------
     ; zero forms
     ;--------------------------------
-    (macro-form ZERO   `(FALSE))
+    ; same as FALSE, but using same argument names here than in Church numerals
+    (macro-form ZERO   `(~lambdachr x y ~separator y))
     (macro-form ZERO?  `(~lambdachr n ~separator (NIL? n)))
     ;--------------------------------
     ; logic forms
@@ -179,7 +212,7 @@
     ; launch application: (NUM 3 a b) ; -> (a (a (a b)))
     (defmacro NUM [n &rest args]
       `(~lambdachr x y ~separator
-        ~(reduce (fn [x y] ['x x]) (range n) 'y) ~@args))
+        ~(reduce (fn [x y] (hy.HyExpression ['x x])) (range n) 'y) ~@args))
     ;--------------------------------
     ; positive "church" numeral forms
     ;--------------------------------
