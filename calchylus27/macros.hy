@@ -1,171 +1,271 @@
 #!/usr/bin/python3
-; Lambda Calculus custom macros
-(defmacro init-macros [lambdachr separator]
+;----------------------------------------------
+; Calchylus - Lambda calculus with Hy
+;
+; Source:
+; https://github.com/markomanninen/calchylus/
+;
+; Install:
+; $ pip install hy calchylus
+;
+; Open Hy:
+; $ hy
+;
+; Import macros:
+; (require (calchylus.lambda (*)))
+;
+; Use:
+; (L x y , (x (x y)) a b) ->
+; (a (a b))
+;
+; Documentation: http://calchylus.readthedocs.io/
+; Author: Marko Manninen <elonmedia@gmail.com>
+; Copyright: Marko Manninen (c) 2017
+; Licence: MIT
+;----------------------------------------------
+
+(defmacro with-alpha-conversion-and-macros [lambdachr separator]
+   `(init-system ~lambdachr ~separator True True))
+
+(defmacro with-alpha-conversion-nor-macros [lambdachr separator]
+   `(init-system ~lambdachr ~separator False False))
+
+(defmacro with-alpha-conversion [lambdachr separator]
+   `(init-system ~lambdachr ~separator True False))
+
+(defmacro with-macros [lambdachr separator]
+   `(init-system ~lambdachr ~separator False True))
+
+(defmacro init-system [lambdachr separator alpha macros]
 
   `(do
 
     (eval-and-compile
 
-      (setv ; TODO: these could be constructed by some lambda-term-generator macro
-          forms ["CONST" "IDENT" "LET" "LET*" "TRUE" "FALSE"
-                 "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "NIL?" "is_NIL"
-                 "ZERO" "ZERO?" "is_ZERO" "NUM"
-                 "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
-                 "COND" "AND" "OR" "NOT" "XOR"
-                 "ADD" "PRED" "SUCC" "EXP" "SUM" "PROD" "SUB"
-                 "EQ?" "is_EQ" "LEQ?" "is_LEQ" "SELF" "YCOMB"
-                 "SUMMATION" "FACTORIAL" "FIBONACCI"])
+      (setv ; lambda expression macro name
+            lambdachr '~lambdachr
+            ; lambda expression argument and body separator
+            separator '~separator)
 
-     ; is expr(ession) a suitable macro form?
-     (defn macro-form? [expr] (and (symbol? expr) (in expr forms)))
+      ; is expression a generated symbol / unique variable name
+      (defn gensym? [x]
+        (or (= (first x) ":") (= (first x) "\ufdd0")))
 
-     ; expand custom lambda forms to the normal lambda forms
-     ; (PAIR TRUE (PAIR TRUE NIL)) should become:
-     ; (L a b s , (s a b) (L a b , a) (L a b s , (s a b) (L a b , a) (L a b , b)))
-     (defn macro-expand [expr]
-       (if (coll? expr)
-           (if (macro-form? (first expr))
-               ; if the first symbol is a custom macro form, expand it by using internal macroexpand-1
-               (macro-expand (macroexpand-1 expr))
-               ; loop everything inside
-               ((type expr) (genexpr (macro-expand x) [x expr])))
-           (if (macro-form? expr)
-               ; plain macro names like TRUE will be reformed to (TRUE) so that they can be expanded
-               (macro-expand (read-str (% "(%s)" expr)))
-               ; return other forms as they are
-               expr))))
-		; named variables. multiple variables can be associated first, then the last expression is the body
-		; (LET a 1 b 2 (a b)) ->
-    ; (L a b p , (p a b) 1 2 (L a b , (a b))) -> (1 2)
-    (defmacro LET [&rest args]
-      ; all odd parameters except the last are argument names
-      (setv x (if args (cut (cut args 0 (len args) 2) 0 -1) ())
-            y (if args (cut args 1 (len args) 2) ())
-            z (if args (last args) ()))
-      `(L ~@x p , (p ~@x) ~@y (L ~@x , ~z)))
-    ; same as LET but preceding variables are evaluated becore using on the body so that
-    ; variables associated previously can be used on later variables
-    ; (LET* a 1 b a (a b)) ->
-    ; (LET a 1 (LET b a (a b))) -> (1 1)
-    (defmacro LET* [&rest args]
-      (setv ; the last parameter in the expression is the body
-            expr `(LET ~(if args (last args) ()))
-            ; argument names are all odd except the last paramter
-            a (if args (cut (cut args 0 (len args) 2) 0 -1) ())
-            ; values are all even paramters
-            b (if args (cut args 1 (len args) 2) ()))
-      ; create nested LET clauses
-      (for [[x y] (zip a b)]
-        (setv expr `(LET ~x ~y ~expr)))
-      expr)
-    ; unnamed variable/constant, doesn't take any arguments, will return given "static" value
-    ; (L , a) -> a
-    (defmacro CONST  [&rest args] `(~lambdachr ~separator ~@args))
-    ; identity, return passed argument as it is
-    (defmacro IDENT  [&rest args] `(~lambdachr a ~separator a ~@args))
-    ; booleans
-    ; true, take two arguments, return the first and omit the second
-    (defmacro TRUE   [&rest args] `(~lambdachr a b ~separator a ~@args))
-    ; false, take two arguments, return the second and omit the first
-    (defmacro FALSE  [&rest args] `(~lambdachr a b ~separator b ~@args))
-    ; lists
-    (defmacro NIL    [&rest args] `(FALSE ~@args))
-    (defmacro PAIR   [&rest args] `(~lambdachr a b s ~separator (s a b) ~@args))
-    (defmacro FIRST  [&rest args] `(TRUE ~@args))
-    (defmacro SECOND [&rest args] `(FALSE ~@args))
-    (defmacro HEAD   [&rest args] `(~lambdachr s ~separator (s TRUE) ~@args))
-    (defmacro TAIL   [&rest args] `(~lambdachr s ~separator (s FALSE) ~@args))
-    (defmacro NIL?   [&rest args] `(~lambdachr s ~separator (s FALSE TRUE) ~@args))
-    ; zero things
-    (defmacro ZERO  [&rest args] `(FALSE ~@args))
-    ;(defmacro ZERO? [&rest args] `(~lambdachr n , (n (L a , (L a b , b)) (L a b , a)) ~@args))
-    (defmacro ZERO? [&rest args] `(~lambdachr n ~separator (n (L a , FALSE) TRUE) ~@args))
-    ; logic
-    (defmacro COND  [&rest args] `(~lambdachr p a b ~separator (p a b) ~@args))
-    (defmacro AND   [&rest args] `(~lambdachr a b ~separator (a b FALSE) ~@args))
-    ;(defmacro AND2  [&rest args] `(~lambdachr a b , (a b a) ~@args))
-    (defmacro OR    [&rest args] `(~lambdachr a b ~separator (a TRUE b) ~@args))
-    ;(defmacro OR2   [&rest args] `(~lambdachr a b , (a a b) ~@args))
-    (defmacro NOT   [&rest args] `(~lambdachr p ~separator (p FALSE TRUE) ~@args))
-    ;(defmacro NOT2  [&rest args] `(~lambdachr p a b , (p b a) ~@args))?
-    (defmacro XOR   [&rest args] `(~lambdachr a b ~separator (a (NOT b) b) ~@args))
-    ; church number generator: (NUM 3) ; -> (L x y , (x (x (x y))))
-    ; launch application: (NUM 3 a b) ; -> (a (a (a b)))
-    ; (defmacro NUM [n &rest args]
-    ;   `(L x y , ~(read_str (N n 'x 'y)) ~@args))
-    ; Tuukka Turto (@tuturto), 2017
-    (defmacro NUM [n &rest args]
-      (if (< n 0) (macro-error n (% "For NUM n needs to be zero or more, was: %s" n))
-          (= n 0) `(~lambdachr x y ~separator y ~@args)
-          (> n 0) (do (setv expr `(x y))
-                      (for [i (range (dec n))]
-                        (setv expr `(x ~expr)))
-                      `(~lambdachr x y ~separator ~expr ~@args))))
-    ; positive "church" numerals
-    ;(defmacro ONE   [&rest args] `(L x y , (x y) ~@args))
-    (defmacro ONE   [&rest args] `(NUM 1 ~@args))
-    ;(defmacro TWO   [&rest args] `(L x y , (x (x y)) ~@args))
-    (defmacro TWO   [&rest args] `(NUM 2 ~@args))
-    ;(defmacro THREE [&rest args] `(L x y , (x (x (x y))) ~@args))
-    (defmacro THREE [&rest args] `(NUM 3 ~@args))
-    ;(defmacro FOUR  [&rest args] `(L x y , (x (x (x (x y)))) ~@args))
-    (defmacro FOUR  [&rest args] `(NUM 4 ~@args))
-    ;(defmacro FIVE  [&rest args] `(L x y , (x (x (x (x (x y))))) ~@args))
-    (defmacro FIVE  [&rest args] `(NUM 5 ~@args))
-    ;(defmacro SIX   [&rest args] `(L x y , (x (x (x (x (x (x y)))))) ~@args))
-    (defmacro SIX   [&rest args] `(NUM 6 ~@args))
-    ;(defmacro SEVEN [&rest args] `(L x y , (x (x (x (x (x (x (x y))))))) ~@args))
-    (defmacro SEVEN [&rest args] `(NUM 7 ~@args))
-    ;(defmacro EIGHT [&rest args] `(L x y , (x (x (x (x (x (x (x (x y)))))))) ~@args))
-    (defmacro EIGHT [&rest args] `(NUM 8 ~@args))
-    ;(defmacro NINE  [&rest args] `(L x y , (x (x (x (x (x (x (x (x (x y))))))))) ~@args))
-    (defmacro NINE  [&rest args] `(NUM 9 ~@args))
-    ;(defmacro TEN   [&rest args] `(L x y , (x (x (x (x (x (x (x (x (x (x y)))))))))) ~@args))
-    (defmacro TEN   [&rest args] `(NUM 10 ~@args))
-    ; arithmetics
-    ; add one, increase by one
-    (defmacro ADD   [&rest args] `(~lambdachr n x y ~separator (n x (x y)) ~@args))
-    ; next / successor = INC = ADD
-    (defmacro SUCC  [&rest args] `(~lambdachr n x y ~separator (x (n x y)) ~@args))
-    ; previous / predecessor = DEC
-    ;(defmacro PRED  [&rest args] `(L n x y , (n (L g h , (h (g x))) (L x , y) (L u , u)) ~@args))
-    (defmacro PRED  [&rest args] `(~lambdachr n x y ~separator (n (~lambdachr g h ~separator (h (g x))) (~lambdachr x ~separator y) IDENT) ~@args))
-    ; substract two numbers from each other
-    (defmacro SUB   [&rest args] `(~lambdachr m n ~separator (m PRED n) ~@args))
-    ; sum two numbers together
-    ;(defmacro SUM  [&rest args] `(L m n , (m SUCC n) ~@args))
-    (defmacro SUM   [&rest args] `(~lambdachr m n x y ~separator (m x (n x y)) ~@args))
-    ; multiplication, product of two numbers
-    (defmacro PROD  [&rest args] `(~lambdachr m n x y ~separator (m (n x) y) ~@args))
-    ; exponent x^y
-    (defmacro EXP   [&rest args] `(~lambdachr m n x y ~separator (n m x y) ~@args))
-    ; lesser or equal
-    (defmacro LEQ?  [&rest args] `(~lambdachr m n ~separator (ZERO? (n PRED m)) ~@args))
-    ; equal
-    (defmacro EQ?   [&rest args] `(~lambdachr m n ~separator (AND (LEQ? m n) (LEQ? n m)) ~@args))
-    ; self application
-    (defmacro SELF  [&rest args] `(~lambdachr f x ~separator (f f x) ~@args))
-    ; Y combinator
-    (defmacro YCOMB [&rest args] `(~lambdachr f ~separator (~lambdachr x ~separator (f (x x)) (~lambdachr x ~separator (f (x x)))) ~@args))
-    ; some math functions
-    ; summation function
-    (defmacro SUMMATION [&rest args]
-      `(~lambdachr x ~separator
-		    (SELF (~lambdachr f n ~separator (COND (ZERO? n) ZERO (SUM n (f f (PRED n))))) x) ~@args))
-    ;(defmacro SUMMATION [&rest args]
-    ;  `(~lambdachr x ~separator
-    ;    (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ZERO (SUM n (f (PRED n))))) x) ~@args))
-    ; factorial function
-    (defmacro FACTORIAL [&rest args]
-      `(~lambdachr x ~separator
-				(SELF (~lambdachr f n ~separator (COND (ZERO? n) ONE (PROD n (f f (PRED n))))) x) ~@args))
-    ;(defmacro FACTORIAL [&rest args]
-    ;  `(~lambdachr x ~separator
-    ;    (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ONE (PROD (f (PRED n)) n))) x) ~@args))
-    ; F/f fibonacci function
-    (defmacro FIBONACCI [&rest args]
-      `(~lambdachr x ~separator
-				(SELF (~lambdachr f n ~separator (COND (ZERO? n) ONE (SUM (f f (PRED n)) (f f (PRED (PRED n)))))) x) ~@args))))
-    ;(defmacro FIBONACCI [&rest args]
-    ;  `(~lambdachr x ~separator
-    ;    (YCOMB (~lambdachr f n ~separator (COND (ZERO? n) ONE (SUM (f (PRED n)) (f (PRED (PRED n)))))) x) ~@args))))
+      ; pretty print utility
+      (defn pprint [expr]
+        (if-not (coll? expr) (str expr)
+          (% "(%s)" (.join " " (map pprint expr)))))
+
+      ; safe get index for the first occurrence of the x
+      ; (index (, 1 2) 0) ; -> -1
+      (defn index [l x]
+        (try (.index l x)
+             (except [e [ValueError AttributeError]]
+               -1)))
+
+      ; extend and return list instead of .extend list in place
+      ; provide a as a copy (.copy a) in cases where strange
+      ; recursive error behaviour is occurring
+      (defn extend [a &rest b]
+        (for [c b] (.extend a c)) a)
+
+      ; is expr(ession) a lambda expression i.e. starts with lambdachr: (L ...)?
+      (defn L? [expr]
+        (and (coll? expr)
+             expr ; not empty
+             (symbol? (first expr))
+             (= (first expr) lambdachr)))
+
+      ; make lambda expression from body and other parts
+      (defn build-lambda [body &optional [args []] [vals []]]
+        (extend [lambdachr] args [separator] body vals))
+
+      ; get lambda expression parts
+      ; body: (x x), args: (x), values (y), and params: ([x y])
+      (defn extract-parts [expr]
+        (setv idx (index expr separator))
+        ; if separator index is less than expected, lambda expression is possibly malformed
+        (if (or (< idx 1) (< (len expr) (+ idx 2))) {"body" None "args" [] "vals" [] "params" []}
+            (do
+              (setv body (cut expr (inc idx))
+                    args (cut expr 1 idx)
+                    vals (tuple (rest body)))
+              ; return body, args, vals, and key-value pairs based on args-vals
+              {"body" (first body) "args" (tuple args) "vals" vals "params" (zip args vals)})))
+
+      ; substitute lambda sub expr(ession). it requires special handler
+      ; because of variable shadowing and not-coll body
+      (defn substitute* [a b expr]
+        (setv p (extract-parts expr)
+              args (get p "args")
+              body (get p "body")
+              vals (get p "vals"))
+        ; first substitute a to b in possible values
+        (if-not (empty? vals) (setv vals (substitute a b vals)))
+        ; shadow arguments, don't substitute if a is in new arguments
+        ; but some instances in vals may have been substituted, so we need to
+        ; construct expression anyway
+        (if (in a args) (build-lambda [body] args vals)
+            (build-lambda
+              ; only coll body can be iterated
+              (if (coll? body)
+                  [(substitute a b body)]
+                  [(if (= a body) b body)])
+              args vals)))
+
+      ; substitute a with b in expr
+      (defn substitute [a b expr]
+        (if (coll? expr)
+            ; if e is lambda expression, call special handler
+            (if (L? expr) (substitute* a b expr)
+                ; else substitute all sub expressions
+                ((type expr) (genexpr (substitute a b e) [e expr])))
+            ; return substitute (b), if match is found
+            (if (= a expr) b expr)))
+
+      ; shift arguments inside functions in application expressions
+      ; ((L x , x) a b) -> (L x , x a b) -> (a b)
+      ; ((TRUE) TRUE FALSE) -> (TRUE TRUE FALSE) -> TRUE
+      ; this is required to convert and evaluate substituted function forms
+      ; (L x y z , ((x) y z) TRUE a b) -> ((TRUE) a b) -> (TRUE a b) -> a
+      (defn shift-arguments [expr]
+        (if-not (coll? expr) expr
+          (do
+            (setv f (first expr))
+            (if (L? f) (setv expr (extend f (tuple (rest expr)))))
+            ((type expr) (map shift-arguments expr)))))
+
+      ; p is extracted lambda expression
+      (defn alpha-conversion* [p]
+        (setv body (get p "body")
+              args (get p "args")
+              vals (get p "vals")
+							; generate argument names for unique ones
+              args2 (tuple (map gensym args)))
+				; replace by new argument names
+        (for [[a b] (zip args args2)]
+          (setv body (substitute a b body)))
+				; re-create expression by substituting body and possible values
+        (build-lambda [(alpha-conversion body)] args2 (if (empty? vals) vals (alpha-conversion vals))))
+
+      ; rename arguments for collision prevention
+      ; without renaming this expression (L x y , (x y) y z) would yield: (z z)
+      ; but because arguments are renamed by gensym, expression will become
+      ; (L :x_1234 :y_1234 , (:x_1234 :y_1234) y z) and result corretly: (y z)
+      ; human-readable function can be used to turn expression back to normal form,
+      ; that is, if there are any lambda abstractions available in the expression
+      (defn alpha-conversion [expr]
+        (if (coll? expr)
+            (if (L? expr)
+              (alpha-conversion* (extract-parts expr))
+              ((type expr) (map alpha-conversion expr)))
+            expr))
+
+      ; extract gen sym original variable name
+      (defn symgen [expr]
+        (setv idx (inc (index (name expr) ":")))
+        (cut (name expr) idx (inc idx)))
+
+      ; convert generated machine variable names to normal forms
+      (defn human-readable [expr]
+        (if ~alpha
+          (if (coll? expr)
+              (map human_readable expr)
+              (if (gensym? (name expr))
+                  (symgen expr)
+                  expr))
+            expr))
+
+      ; beta reduction helper
+      (defn beta-reduction* [expr]
+        (setv p (extract-parts expr)
+              body (get p "body")
+              args (get p "args")
+              vals (get p "vals")
+              ; rest of the free arguments that are not in params
+              free (list (drop (len args) vals)))
+        ; substitute bound arguments
+        ;(print 'before-substitute-body: (pprint body))
+        (for [[a b] (get p "params")]
+          (setv body (substitute a b body)))
+        ;(print 'after-substitute-body: (pprint body))
+        ; shift application arguments
+        (if (coll? body)
+          (setv body (shift-arguments body)))
+        ;(print 'after-shift-arguments: (pprint body))
+        (if (coll? body)
+            (if (L? body)
+                (do (setv body (extend body free))
+                    (setv pp (extract-parts body))
+                    ; if evaluated expression has no further values, but also
+                    ; it is not a constant, render final form
+                    (if (and (empty? (get pp "vals")) (not (empty? (get pp "args"))))
+                        (if (and (empty? free) (not (empty? args)) (empty? vals))
+                            (human-readable expr)
+                            (human-readable (if (empty? free) body expr)))
+                        ; else evaluate again but using helper because we know
+                        ; expression is lambda form
+                        (beta_reduction* body)))
+                ; if original expression has no values, it was lambda expression and
+                ; it had arguments, render final form
+                (if (and (empty? vals) (L? expr) (not (empty? args)))
+                    (human-readable expr)
+                    ; else evaluate again using main redex
+                    (map beta-reduction (if (empty? free) body (extend [body] free)))))
+            ; render final form. here we want to return either
+            ; the body or the whole expression depending on args, vals and free variables
+            (human-readable
+              (if args
+                (if vals
+                  (if free
+                    (extend [body] free)
+                  body)
+                expr)
+              (if free (extend [body] free) body)))))
+
+      ; main form beta / eta reduction steps
+      (defn beta-reduction [expr]
+        ;(print)
+        ;(print 'beta-reduction: (pprint expr))
+        ; if the form (expr) is not a lambda form i.e. not starting with L
+        ; we still want to seek if there are sub lambda expressions inside
+        ; (x (x (L x , x y))) should return (x (x y))
+        (if (L? expr)
+            (beta_reduction* expr)
+            (if (coll? expr)
+                (map beta-reduction expr)
+                (human-readable expr))))
+
+      ; reformulate expression, because by using L macro, L is naturally left out from the expression
+      ; beta-reduction functions on the other hand relys on the L in the beginning of the expression!
+      ; then pass parameters and possibly expand macro form later
+      (defn evaluate-lambda-expression [expr]
+        ;(print 'evaluate-lambda-expression (pprint expr))
+        (setv expr (hy.HyExpression (extend [lambdachr] expr)))
+        (setv expr (beta-reduction (if ~alpha (alpha-conversion expr) expr)))
+        (if (or (coll? expr) (symbol? expr))
+            ; symbols and expression should be pretty "printed"
+            (pprint expr)
+            ; numbers for example get passed as they are
+            ; this is not exactly included on lambda calculus but just a way
+            ; to keep data types existing for hy and later usage
+            expr)))
+
+    ; lambda expression main macro
+    (defmacro ~lambdachr [&rest expr]
+      ; try except is not working alone on macro body!
+      (if-not (empty? expr)
+        (try
+          (evaluate-lambda-expression (if ~macros (macro-expand expr) expr))
+          (except [e [RuntimeError hy.errors.HyMacroExpansionError]]
+            (print "Recursion error occured for lambda expression: " (pprint expr))))))
+
+    ; lambda application sharp macro
+    (defsharp Y [expr] `(~lambdachr ~separator ~expr))
+
+    (if ~macros
+      (do
+         ; for some reason macros will be included even if this block
+         ; is not reached runtime...
+         (require [calchylus27.macros [*]])
+         (init-macros ~lambdachr ~separator)))))
