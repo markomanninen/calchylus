@@ -39,4 +39,6 @@ So the usage of the anonymous function in Hy is:
 From that point of view, it really is just a matter of implementing Lambda
 calculus syntax to functionality, that already exists in Hy.
 
+http://docs.hylang.org/en/stable/language/api.html#fn
+
 .. _anonymous functions: https://en.wikipedia.org/wiki/Anonymous_function

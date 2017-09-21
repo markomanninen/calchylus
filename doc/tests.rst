@@ -28,6 +28,10 @@ Short Introduction to the Lambda-calculus, Franco Barbanera ()
 
 http://www.dmi.unict.it/~barba/LinguaggiII.html/READING_MATERIAL/LAMBDACALCULUS/LAMBDACALCULUS.1.HTM
 
+Collected Lambda Calculus Functions
+
+http://jwodder.freeshell.org/lambda.html
+
 |copy| |lambda|
 
 .. |copy| unicode:: 0xA9 .. copyright sign
