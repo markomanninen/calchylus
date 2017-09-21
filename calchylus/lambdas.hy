@@ -85,21 +85,20 @@
       (defn extract-parts [expr]
         (setv idx (index expr separator))
         ; if separator index is less than expected, lambda expression is possibly malformed
-        (if (or (< idx 1) (< (len expr) (+ idx 2))) {"body" None "args" [] "vals" [] "params" []}
+        (if (or (< idx 1) (< (len expr) (+ idx 2))) {:body None :args [] :vals [] :params []}
             (do
               (setv body (cut expr (inc idx))
                     args (cut expr 1 idx)
                     vals (tuple (rest body)))
               ; return body, args, vals, and key-value pairs based on args-vals
-              {"body" (first body) "args" (tuple args) "vals" vals "params" (zip args vals)})))
+              {:body (first body) :args (tuple args) :vals vals :params (zip args vals)})))
 
       ; substitute lambda sub expr(ession). it requires special handler
       ; because of variable shadowing and not-coll body
-      (defn substitute* [a b expr]
-        (setv p (extract-parts expr)
-              args (get p "args")
-              body (get p "body")
-              vals (get p "vals"))
+      (defn substitute* [a b p]
+        (setv args (:args p)
+              body (:body p)
+              vals (:vals p))
         ; first substitute a to b in possible values
         (if-not (empty? vals) (setv vals (substitute a b vals)))
         ; shadow arguments, don't substitute if a is in new arguments
@@ -117,7 +116,7 @@
       (defn substitute [a b expr]
         (if (coll? expr)
             ; if e is lambda expression, call special handler
-            (if (L? expr) (substitute* a b expr)
+            (if (L? expr) (substitute* a b (extract-parts expr))
                 ; else substitute all sub expressions
                 ((type expr) (genexpr (substitute a b e) [e expr])))
             ; return substitute (b), if match is found
@@ -137,9 +136,9 @@
 
       ; p is extracted lambda expression
       (defn alpha-conversion* [p]
-        (setv body (get p "body")
-              args (get p "args")
-              vals (get p "vals")
+        (setv body (:body p)
+              args (:args p)
+              vals (:vals p)
               ; generate argument names for unique ones
               args2 (tuple (map gensym args)))
         ; replace by new argument names
@@ -179,14 +178,14 @@
       ; beta reduction helper
       (defn beta-reduction* [expr]
         (setv p (extract-parts expr)
-              body (get p "body")
-              args (get p "args")
-              vals (get p "vals")
+              body (:body p)
+              args (:args p)
+              vals (:vals p)
               ; rest of the free arguments that are not in params
               free (list (drop (len args) vals)))
         ; substitute bound arguments
         ;(print 'before-substitute-body: (pprint body) free)
-        (for [[a b] (get p "params")]
+        (for [[a b] (:params p)]
           (setv body (substitute a b body)))
         ;(print 'after-substitute-body: (pprint body))
         ; shift application arguments
@@ -199,7 +198,7 @@
                     (setv pp (extract-parts body))
                     ; if evaluated expression has no further values, but also
                     ; it is not a constant, render final form
-                    (if (and (empty? (get pp "vals")) (not (empty? (get pp "args"))))
+                    (if (and (empty? (:vals pp)) (not (empty? (:args pp))))
                         (if (and (empty? free) (not (empty? args)) (empty? vals))
                             (human-readable expr)
                             (human-readable (if (empty? free) body expr)))
