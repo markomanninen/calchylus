@@ -1,6 +1,6 @@
 
 Concepts of Lambda calculus
-===========================
+---------------------------
 
 Lambda calculus takes everything to the very few basic computational ideas.
 First of all, there are only three concepts necessary to express Lambda calculus:
