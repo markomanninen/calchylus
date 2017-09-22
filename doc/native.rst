@@ -28,7 +28,6 @@ notable exceptions of Ada, C, COBOL, Fortran, and Pascal.
 
 .. literalinclude:: source/native_lambda.hy
    :language: hylang
-   :linenos:
    :emphasize-lines: 15
 
 In Hy anonymous function is created with ``(fn [args] body)``. Because Hy is
