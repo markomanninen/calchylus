@@ -43,42 +43,42 @@
     (eval-and-compile
 
       (setv ; lambda expression macro name
-            lambdachr '~lambdachr
-            ; lambda expression argument and body separator
-            separator '~separator)
+            lambdachr '~lambdachr
+            ; lambda expression argument and body separator
+            separator '~separator)
 
       ; is expression a generated symbol / unique variable name
       (defn gensym? [x]
         (or (= (first x) ":") (= (first x) "\ufdd0")))
 
       ; pretty print utility
-      (defn pprint [expr]
-        (if-not (coll? expr) (str expr)
-          (% "(%s)" (.join " " (map pprint expr)))))
+      (defn pprint [expr]
+        (if-not (coll? expr) (str expr)
+          (% "(%s)" (.join " " (map pprint expr)))))
 
-      ; safe get index for the first occurrence of the x
+      ; safe get index for the first occurrence of the x
       ; (index (, 1 2) 0) ; -> -1
-      (defn index [l x]
-        (try (.index l x)
-             (except [e [ValueError AttributeError]]
-               -1)))
+      (defn index [l x]
+        (try (.index l x)
+             (except [e [ValueError AttributeError]]
+               -1)))
 
       ; extend and return list instead of .extend list in place
       ; provide a as a copy (.copy a) in cases where strange
       ; recursive error behaviour is occurring
-      (defn extend [a &rest b]
+      (defn extend [a &rest b]
         (for [c b] (.extend a c)) a)
 
       ; is expr(ession) a lambda expression i.e. starts with lambdachr: (L ...)?
-      (defn L? [expr]
-        (and (coll? expr)
+      (defn L? [expr]
+        (and (coll? expr)
              expr ; not empty
-             (symbol? (first expr))
-             (= (first expr) lambdachr)))
+             (symbol? (first expr))
+             (= (first expr) lambdachr)))
 
       ; make lambda expression from body and other parts
-      (defn build-lambda [body &optional [args []] [vals []]]
-        (extend [lambdachr] args [separator] body vals))
+      (defn build-lambda [body &optional [args []] [vals []]]
+        (extend [lambdachr] args [separator] body vals))
 
       ; get lambda expression parts
       ; body: (x x), args: (x), values (y), and params: ([x y])
@@ -93,46 +93,46 @@
               ; return body, args, vals, and key-value pairs based on args-vals
               {:body (first body) :args (tuple args) :vals vals :params (zip args vals)})))
 
-      ; substitute lambda sub expr(ession). it requires special handler
-      ; because of variable shadowing and not-coll body
-      (defn substitute* [a b p]
-        (setv args (:args p)
-              body (:body p)
-              vals (:vals p))
-        ; first substitute a to b in possible values
-        (if-not (empty? vals) (setv vals (substitute a b vals)))
-        ; shadow arguments, don't substitute if a is in new arguments
+      ; substitute lambda sub expr(ession). it requires special handler
+      ; because of variable shadowing and not-coll body
+      (defn substitute* [a b p]
+        (setv args (:args p)
+              body (:body p)
+              vals (:vals p))
+        ; first substitute a to b in possible values
+        (if-not (empty? vals) (setv vals (substitute a b vals)))
+        ; shadow arguments, don't substitute if a is in new arguments
         ; but some instances in vals may have been substituted, so we need to
         ; construct expression anyway
-        (if (in a args) (build-lambda [body] args vals)
-            (build-lambda
-              ; only coll body can be iterated
-              (if (coll? body)
-                  [(substitute a b body)]
-                  [(if (= a body) b body)])
-              args vals)))
+        (if (in a args) (build-lambda [body] args vals)
+            (build-lambda
+              ; only coll body can be iterated
+              (if (coll? body)
+                  [(substitute a b body)]
+                  [(if (= a body) b body)])
+              args vals)))
 
-      ; substitute a with b in expr
-      (defn substitute [a b expr]
-        (if (coll? expr)
-            ; if e is lambda expression, call special handler
-            (if (L? expr) (substitute* a b (extract-parts expr))
+      ; substitute a with b in expr
+      (defn substitute [a b expr]
+        (if (coll? expr)
+            ; if e is lambda expression, call special handler
+            (if (L? expr) (substitute* a b (extract-parts expr))
                 ; else substitute all sub expressions
-                ((type expr) (genexpr (substitute a b e) [e expr])))
+                ((type expr) (genexpr (substitute a b e) [e expr])))
             ; return substitute (b), if match is found
-            (if (= a expr) b expr)))
+            (if (= a expr) b expr)))
 
       ; shift arguments inside functions in application expressions
       ; ((L x , x) a b) -> (L x , x a b) -> (a b)
       ; ((TRUE) TRUE FALSE) -> (TRUE TRUE FALSE) -> TRUE
       ; this is required to convert and evaluate substituted function forms
       ; (L x y z , ((x) y z) TRUE a b) -> ((TRUE) a b) -> (TRUE a b) -> a
-      (defn shift-arguments [expr]
-        (if-not (coll? expr) expr
+      (defn shift-arguments [expr]
+        (if-not (coll? expr) expr
           (do
             (setv f (first expr))
             (if (L? f) (setv expr (extend ((type f) (.copy f)) (tuple (rest expr)))))
-            ((type expr) (map shift-arguments expr)))))
+            ((type expr) (map shift-arguments expr)))))
 
       ; p is extracted lambda expression
       (defn alpha-conversion* [p]
@@ -178,15 +178,15 @@
       ; beta reduction helper
       (defn beta-reduction* [expr]
         (setv p (extract-parts expr)
-              body (:body p)
+              body (:body p)
               args (:args p)
               vals (:vals p)
-              ; rest of the free arguments that are not in params
-              free (list (drop (len args) vals)))
-        ; substitute bound arguments
-        ;(print 'before-substitute-body: (pprint body) free)
-        (for [[a b] (:params p)]
-          (setv body (substitute a b body)))
+              ; rest of the free arguments that are not in params
+              free (list (drop (len args) vals)))
+        ; substitute bound arguments
+        ;(print 'before-substitute-body: (pprint body) free)
+        (for [[a b] (:params p)]
+          (setv body (substitute a b body)))
         ;(print 'after-substitute-body: (pprint body))
         ; shift application arguments
         (if (coll? body)
