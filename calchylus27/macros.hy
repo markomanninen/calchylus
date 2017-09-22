@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#! /usr/bin/env hy
 ; Lambda Calculus custom macros
 (defmacro init-macros [lambdachr separator]
 

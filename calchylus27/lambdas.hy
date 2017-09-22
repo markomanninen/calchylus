@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#! /usr/bin/env hy
 ;----------------------------------------------
 ; Calchylus - Lambda calculus with Hy
 ;
