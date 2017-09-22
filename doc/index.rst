@@ -58,7 +58,7 @@ Contents
 
    quick
    theory/history
-   concepts
+   theory/concepts
    expressions
    native
    evaluation

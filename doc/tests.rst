@@ -32,6 +32,10 @@ Collected Lambda Calculus Functions
 
 http://jwodder.freeshell.org/lambda.html
 
+Deriving Recursive Programs
+
+http://faculty.ycp.edu/~dhovemey/fall2011/cs340/lecture/lecture14.html
+
 |copy| |lambda|
 
 .. |copy| unicode:: 0xA9 .. copyright sign

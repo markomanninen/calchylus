@@ -1,6 +1,9 @@
 
+Theory
+======
+
 Historical perspectives
-=======================
+-----------------------
 
 Notation and ideas of differentiable functions comes from the 17th century
 mathematician `Gottfried Leibniz`_. Early functions dealt with the continuous
