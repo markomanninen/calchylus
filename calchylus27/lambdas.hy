@@ -11,8 +11,11 @@
 ; Open Hy:
 ; $ hy
 ;
-; Import macros:
-; (require (calchylus.lambda (*)))
+; Import library:
+; (require (calchylus27.lambdas (*)))
+;
+; Initialize macros:
+; (with-alpha-conversion-and-macros L ,)
 ;
 ; Use:
 ; (L x y , (x (x y)) a b) ->
