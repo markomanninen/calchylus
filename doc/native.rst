@@ -26,6 +26,11 @@ notable exceptions of Ada, C, COBOL, Fortran, and Pascal.
       ; cut the body of the expression and append to the function
       ~@(cut expr (inc idx))))
 
+.. literalinclude:: source/native_lambda.hy
+   :language: hylang
+   :linenos:
+   :emphasize-lines: 15
+
 In Hy anonymous function is created with ``(fn [args] body)``. Because Hy is
 Lisp at frontend, evaluation order of the elements in the program expression is
 very similar to Lambda calculus syntax. The first element will be the function
