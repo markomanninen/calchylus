@@ -10,11 +10,10 @@
 
       (setv
         forms ["CONST" "IDENT" "LET" "LET*"
-               "TRUE" "FALSE"
+               "TRUE" "FALSE" "NIL?" "is_NIL"
                "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "EMPTY"
-               "NULL" "FOLD-LEFT" "FOLD-RIGHT" "MAP" "APPLY" "REVERSE" "LIST*"
-               "LIST" "LAST" "PREPEND" "APPEND" "LEN"
-               "NIL?" "is_NIL" "EMPTY?" "is_EMPTY"
+               "LIST" "LAST" "PREPEND" "APPEND" "EXTEND" "LEN" "EMPTY?" "is_EMPTY"
+               "FOLD-LEFT" "FOLD-RIGHT" "MAP" "APPLY" "REVERSE" "LIST*"
                "NUM" "ZERO" "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
                "ZERO?" "is_ZERO" "NUM?" "is_NUM"
                "LEQ?" "is_LEQ" "EQ?" "is_EQ"  "GEQ?" "is_GEQ" "GE?" "is_GE" "LE?" "is_LE"
@@ -136,6 +135,8 @@
     (macro-form NIL    `(L x , TRUE))
     ; empty last entry of the list
     (macro-form EMPTY  `(PAIR NIL NIL))
+    ; is empty list
+    (macro-form EMPTY? `(~lambdachr l ~separator ((TAIL l) (~lambdachr h t ~separator FALSE))))
     ; first item of the list, used as the parent node of the list i.e. cons
     (macro-form HEAD   `(~lambdachr s ~separator (s TRUE)))
     ; last item of the list, used as the parent node of the list i.e. cdr
@@ -150,8 +151,6 @@
     (macro-form LAST
       `(YCOMB (~lambdachr f l ~separator
           (COND (EMPTY? (TAIL l)) (HEAD l) (f (TAIL l))))))
-    ; is empty list
-    (macro-form EMPTY? `(~lambdachr l ~separator ((TAIL l) (~lambdachr h t ~separator FALSE))))
     ; NUM? any number from one and up or ZERO / FALSE
     (macro-form NUM?   `(~lambdachr n ~separator (OR (NOT n) (n TRUE TRUE FALSE))))
     ; is item empty / EMPTY?
@@ -159,33 +158,30 @@
 		; length of the list
     (macro-form LEN
       `(YCOMB (~lambdachr f l ~separator (COND (EMPTY? l) ZERO (SUM ONE (f (TAIL l)))))))
-    ; index i of the list l
+    ; (INDEX 1 (LIST ONE TWO THREE)) -> TWO
     (macro-form INDEX  `(~lambdachr l i ~separator (HEAD (i TAIL l))))
-    (macro-form NULL
-      `(~lambdachr p ~separator (p (~lambdachr x y ~separator FALSE))))
-    ;FOLD-LEFT := Y (λgfex. NULL x e (g f (f e (CAR x)) (CDR x)))
+    ; (FOLD-LEFT SUM ZERO (LIST ONE TWO)) -> THREE
     (macro-form FOLD-LEFT
-      `(YCOMB (~lambdachr g f e x ~separator (NULL x e (g f (f e (HEAD x)) (TAIL x))))))
-    ;FOLD-RIGHT := λfex. Y (λgy. NULL y e (f (CAR y) (g (CDR y)))) x
+      `(YCOMB (~lambdachr g f e x ~separator (EMPTY? x e (g f (f e (HEAD x)) (TAIL x))))))
+    ; (FOLD-RIGHT SUM ZERO (LIST ONE TWO)) -> THREE
     (macro-form FOLD-RIGHT
       `(~lambdachr f e x ~separator
-        (YCOMB (~lambdachr g y ~separator (NULL y e (f (HEAD y) (g (TAIL y))))) x)))
-    ;APPLY f x — passes the elements of the list x to f:
-    ;APPLY := Y (λgfx. NULL x f (g (f (CAR x)) (CDR x)))
+        (YCOMB (~lambdachr g y ~separator (EMPTY? y e (f (HEAD y) (g (TAIL y))))) x)))
+    ; (APPLY SUM (LIST TWO TWO)) -> FOUR
     (macro-form APPLY
-      `(YCOMB (~lambdachr g f x ~separator (NULL x f (g (f (HEAD x)) (TAIL x))))))
-    ;MAP f x — maps each element of the list x through f:
-    ;MAP := Y (λgfx. NULL x NIL (PAIR (f (CAR x)) (g f (CDR x))))
+      `(YCOMB (~lambdachr g f x ~separator (EMPTY? x f (g (f (HEAD x)) (TAIL x))))))
+    ; (MAP SUCC (LIST ONE TWO)) -> (TWO THREE)
     (macro-form MAP
-      `(YCOMB (~lambdachr g f x ~separator (NULL x NIL (PAIR (f (HEAD x)) (g f (TAIL x)))))))
-    ;REVERSE := Y (λgal. NULL l a (g (PAIR (CAR l) a) (CDR l))) NIL
+      `(YCOMB (~lambdachr g f x ~separator (EMPTY? x EMPTY (PAIR (f (HEAD x)) (g f (TAIL x)))))))
+    ; (REVERSE (LIST ONE TWO THREE)) -> (THREE TWO ONE)
     (macro-form REVERSE
-      `(YCOMB (~lambdachr g a l ~separator (NULL l a (g (PAIR (HEAD l) a) (TAIL l)))) NIL))
-    ; LIST n a0 a1 ... an-1 — evaluates to a0 ... an-1 as a list
-    ; LIST := λn. n (λfax. f (PAIR x a)) REVERSE NIL
-    ; (LIST* THREE ONE TWO THREE)
+      `(YCOMB (~lambdachr g a l ~separator (EMPTY? l a (g (PAIR (HEAD l) a) (TAIL l)))) EMPTY))
+    ; (LIST* THREE ONE TWO THREE) -> (ONE TWO THREE)
     (macro-form LIST*
-      `(~lambdachr n ~separator (n (~lambdachr f a x ~separator (f (PAIR x a))) REVERSE NIL)))
+      `(~lambdachr n ~separator (n (~lambdachr f a x ~separator (f (PAIR x a))) REVERSE EMPTY)))
+    ; (EXTEND (LIST ONE TWO) (LIST THREE FOUR)) -> (ONE TWO THREE FOUR)
+    (macro-form EXTEND
+      `(YCOMB (~lambdachr g a b ~separator (EMPTY? a b (PAIR (HEAD a) (g (TAIL a) b))))))
     ;--------------------------------
     ; zero forms
     ;--------------------------------
