@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#! /usr/bin/env hy
 ; native function utilizer by lambda calculus syntax in Hy
 (eval-and-compile
     ; specify separator char
@@ -8,7 +8,7 @@
       ; if the element is not found, return -1
       (try (.index lst elm) (except [ValueError] -1))))
   ; main lambda expression macro
-  (defmacro 𝜆 [&rest expr]
+  (defmacro λ [&rest expr]
     ; get the index of the argument-body separator
     (setv idx (index separator expr))
     ;  cut the arguments before the separator and append to the function
