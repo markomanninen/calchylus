@@ -50,7 +50,6 @@
             lambdachr '~lambdachr
             ; lambda expression argument and body separator
             separator '~separator)
-
       ; is expression a generated symbol / unique variable name
       (defn gensym? [x]
         (or (= (first x) ":") (= (first x) "\ufdd0")))
@@ -58,7 +57,8 @@
       ; pretty print utility
       (defn pprint [expr]
         (if-not (coll? expr) (str expr)
-          (% "(%s)" (.join " " (map pprint expr)))))
+          ; add support for escaped dot syntax
+          (% "(%s)" (.replace (.join " " (map pprint expr)) "\." "."))))
 
       ; safe get index for the first occurrence of the x
       ; (index (, 1 2) 0) ; -> -1
@@ -246,6 +246,9 @@
         ; if the form (expr) is not a lambda form i.e. not starting with L
         ; we still want to seek if there are sub lambda expressions inside
         ; (x (x (L x , x y))) should return (x (x y))
+        ; also ((L x , e) 2) should return e
+        (if (coll? expr)
+          (setv expr (shift-arguments expr)))
         (if (L? expr)
             (beta_reduction* expr)
             (if (coll? expr)
