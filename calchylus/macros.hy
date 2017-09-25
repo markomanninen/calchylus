@@ -238,6 +238,9 @@
     (macro-form EIGHT `(NUM 8))
     (macro-form NINE `(NUM 9))
     (macro-form TEN `(NUM 10))
+    ; to be used like: #ℕ17 / #ℕ 17 ->
+    ; (NUM 17) -> (L x , (L y , (x (x ..... (x y)))))
+    (defsharp ℕ [n] `(NUM ~n))
     ;--------------------------------
     ; zero forms
     ;--------------------------------
