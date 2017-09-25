@@ -2,7 +2,7 @@
 Welcome to Calchylus's documentation!
 =====================================
 
-Calchylus is a computer installable `Hy`_ module that is used to evaluate
+``calchylus`` is a computer installable `Hy`_ module that is used to evaluate
 Lambda expressions, and furthermore through this documentation, shine light to
 the basics of Lambda calculus (also written as λ-calculus).
 
