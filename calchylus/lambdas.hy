@@ -44,6 +44,11 @@
 
   `(do
 
+    (try (do (import IPython)
+      (if (in 'display (.__dir__ IPython))
+        (import (IPython.display [HTML]))))
+      (except (e Exception)))
+
     (eval-and-compile
 
       (setv ; lambda expression macro name
@@ -57,8 +62,13 @@
       ; pretty print utility
       (defn pprint [expr]
         (if-not (coll? expr) (str expr)
-          ; add support for escaped dot syntax
-          (% "(%s)" (.replace (.join " " (map pprint expr)) "\." "."))))
+          (do
+            ; see if there is an additional wrapper on application
+            ; we don't need to show it...
+            (setv p (extract-parts expr)
+                  expr (if (or (none? (:body p)) (:args p)) expr (:body p)))
+            ; add support for escaped dot syntax
+            (% "(%s)" (.replace (.join " " (map pprint expr)) "\." ".")))))
 
       ; safe get index for the first occurrence of the x
       ; (index (, 1 2) 0) ; -> -1
@@ -267,7 +277,23 @@
             ; numbers for example get passed as they are
             ; this is not exactly included on lambda calculus but just a way
             ; to keep data types existing for hy and later usage
-            expr)))
+            expr))
+      ; helper for macro-print
+      (defn replace-with-acute [expr]
+        ; change spaces to \space for better padding around symbols
+        (setv expr (.replace (.replace (.replace (pprint expr) " " "\\ ") "\\ ^\\" "^") "(\\\ " "("))
+        ; remove parentheses the outer-most parentheses
+        (if (and (.startswith expr "(") (.endswith expr ")")) (cut expr 1 -1) expr))
+      ; output expression in latex / mathjax format for pretty print in html documents
+      (defn latex-output [expr &optional [size "large"] [result False]]
+        ; add application closure for a moment
+        (setv expr (extend '(APP) [expr]))
+        ; add html linebreak for top padding, add $$ for mathjax rendering, use large font
+        (% "<br/>$$\\\\\%s %s\\\\$$"
+          (, size (% "%s%s"
+            (, (replace-with-acute (macro-expand expr))
+              ; add result to the equation?
+              (if result (% "\\\\\%s=_{\\beta} \\\\\\%s %s" (, size size (replace-with-acute (eval expr)))) "")))))))
 
     ; lambda expression main macro
     (defmacro ~lambdachr [&rest expr]
@@ -280,6 +306,13 @@
 
     ; lambda application sharp macro
     (defsharp Ÿ [expr] `(~lambdachr ~separator ~expr))
+    ; output expression formatted by mathjax
+    (defmacro defprint [expr &optional [result False] [size "large"]]
+      `(HTML ~(latex-output expr :size size :result result)))
+    ; output expression formatted by mathjax with default settings
+    (defsharp § [expr] `(defprint ~expr))
+    ; output expression and its beta reduced form formatted by mathjax
+    (defsharp ¤ [expr] `(defprint ~expr True))
 
     (if ~macros
       (do
