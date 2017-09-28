@@ -1,6 +1,5 @@
 #! /usr/bin/env hy
 ;----------------------------------------------
-;----------------------------------------------
 ; Calchylus - Lambda calculus with Hy
 ;
 ; Source:
@@ -19,7 +18,7 @@
 ; (with-alpha-conversion-and-macros L ,)
 ;
 ; Use:
-; (L x y , (x (x y)) a b) ->
+; (λ x y , (x (x y)) a b) ->
 ; (a (a b))
 ;
 ; Documentation: http://calchylus.readthedocs.io/
@@ -43,7 +42,6 @@
 (defmacro init-system [lambdachr separator alpha macros]
 
   `(do
-
     (try (do (import IPython)
       (if (in 'display (.__dir__ IPython))
         (import (IPython.display [HTML]))))
@@ -55,9 +53,6 @@
             lambdachr '~lambdachr
             ; lambda expression argument and body separator
             separator '~separator)
-      ; is expression a generated symbol / unique variable name
-      (defn gensym? [x]
-        (or (= (first x) ":") (= (first x) "\ufdd0")))
 
       ; pretty print utility
       (defn pprint [expr]
@@ -83,7 +78,7 @@
       (defn extend [a &rest b]
         (for [c b] (.extend a c)) a)
 
-      ; is expr(ession) a lambda expression i.e. starts with lambdachr: (L ...)?
+      ; is expr(ession) a lambda expression i.e. starts with lambdachr: (λ ...)?
       (defn L? [expr]
         (and (coll? expr)
              expr ; not empty
@@ -95,7 +90,7 @@
         (extend [lambdachr] args [separator] body vals))
 
       ; get lambda expression parts
-      ; body: (x x), args: (x), values (y), and params: ([x y])
+      ; (λ x , (x x) y) -> body: (x x), args: (x), values (y), and params: ([x y])
       (defn extract-parts [expr]
         (setv idx (index expr separator))
         ; if separator index is less than expected, lambda expression is possibly malformed
@@ -137,10 +132,10 @@
             (if (= a expr) b expr)))
 
       ; shift arguments inside functions in application expressions
-      ; ((L x , x) a b) -> (L x , x a b) -> (a b)
+      ; ((λ x , x) a b) -> (λ x , x a b) -> (a b)
       ; ((TRUE) TRUE FALSE) -> (TRUE TRUE FALSE) -> TRUE
       ; this is required to convert and evaluate substituted function forms
-      ; (L x y z , ((x) y z) TRUE a b) -> ((TRUE) a b) -> (TRUE a b) -> a
+      ; (λ x y z , ((x) y z) TRUE a b) -> ((TRUE) a b) -> (TRUE a b) -> a
       (defn shift-arguments [expr]
         (if-not (coll? expr) expr
           (do
@@ -148,23 +143,35 @@
             (if (L? f) (setv expr (extend ((type f) (.copy f)) (tuple (rest expr)))))
             ((type expr) (map shift-arguments expr)))))
 
+      ; generated variable name for alpha conversion
+      (defclass Variable [HySymbol]
+        (defn --init-- [self &optional [variable_name "G"]]
+          (setv self.variable_name variable_name
+                self.generated_variable_name (gensym variable_name)))
+        (defn --repr-- [self]
+          self.generated_variable_name)
+        (defn --eq-- [self x]
+          (= x self.generated_variable_name)))
+      ; is object a variable?
+      ;(defn variable? [x] (instance? Variable x))
       ; p is extracted lambda expression
       (defn alpha-conversion* [p]
         (setv body (:body p)
               args (:args p)
               vals (:vals p)
-              ; generate argument names for unique ones
-              args2 (tuple (map gensym args)))
+              ; generate unique argument names
+              args2 (tuple (map Variable args)))
         ; replace by new argument names
         (for [[a b] (zip args args2)]
           (setv body (substitute a b body)))
         ; re-create expression by substituting body and possible values
-        (build-lambda [(alpha-conversion body)] args2 (if (empty? vals) vals (alpha-conversion vals))))
+        (build-lambda [(alpha-conversion body)] args2
+          (if (empty? vals) vals (alpha-conversion vals))))
 
       ; rename arguments for collision prevention
-      ; without renaming this expression (L x y , (x y) y z) would yield: (z z)
+      ; without renaming this expression (λ x y , (x y) y z) would yield: (z z)
       ; but because arguments are renamed by gensym, expression will become
-      ; (L :x_1234 :y_1234 , (:x_1234 :y_1234) y z) and result corretly: (y z)
+      ; (λ :x_1234 :y_1234 , (:x_1234 :y_1234) y z) and result corretly: (y z)
       ; human-readable function can be used to turn expression back to normal form,
       ; that is, if there are any lambda abstractions available in the expression
       (defn alpha-conversion [expr]
@@ -174,93 +181,79 @@
               ((type expr) (map alpha-conversion expr)))
             expr))
 
-      ; extract gen sym original variable name
-      (defn symgen [expr]
-        (setv idx (inc (index (name expr) ":")))
-        (cut (name expr) idx (inc idx)))
-
       ; convert generated machine variable names to normal forms
       (defn human-readable [expr]
-        (if ~alpha
-          (if (coll? expr)
-              (map human_readable expr)
-              (if (gensym? (name expr))
-                  (symgen expr)
-                  expr))
-            expr))
-
-      ; beta reduction helper
+        (if-not ~alpha expr
+          (if (coll? expr) (map human_readable expr) expr)))
+      ; either get the final reduced form or reduce more
+      (defn render-or-reduce [expr body]
+        (setv p (extract-parts body))
+          ; if evaluated expression has no further values, but also
+          ; it is not a constant, render the final form
+          (if (and (empty? (:vals p)) (not (empty? (:args p))))
+              (human-readable expr)
+              ; else evaluate again but using helper because we know
+              ; expression is lambda form
+              (lambda-reduction body)))
+      ; substitute bound variable and parameter
+      ; AND
+      ; shift application arguments
+      ; this means that function forms are translated from
+      ; ((a) b) to (a b) which makes it possible to evaluate
+      ; lambda expressions with less parentheses
+      (defn normal-form [body args vals free]
+        (setv body (shift-arguments (substitute args vals body))
+              expr (if free (extend [body] free) body))
+        ; if body is still a list after substitution and shift
+        (if (coll? body)
+            ; and it is a lambda expression
+            (if (L? body)
+                (render-or-reduce expr (extend body free))
+                ; else evaluate again using main redex function
+                (map beta-reduction expr))
+            ; else render final form. return either the body or the
+            ; whole expression depending on free parameters
+            (human-readable expr)))
+      ; (λ x y z , (x y z) 1 2 3)
+      ; (λ x , (λ y , (λ z , (x y z))) 1 2 3)
+      ; this will also delay evaluating all multiple arguments at once
+      ; so tha tonly the left most argument and its value gets substituted
+      ; to the body first, then going deeper and deeper
+      (defn currying [body args vals]
+        (while args
+          (setv body (build-lambda [body] [(.pop args)])))
+        ; reduce re-created expression again
+        (lambda-reduction (extend body vals)))
       ; this function assumes that expression is lambda one
       ; if not knowing, then beta-reduction should be used
-      (defn beta-reduction* [expr]
+      (defn lambda-reduction [expr]
         (setv p (extract-parts expr)
               body (:body p)
               args (:args p)
               vals (:vals p)
               ; rest of the free arguments that are not in params
               free (list (drop (len args) vals)))
-        ; if multiple argument are provided then curry them
-        (if (> (len args) 1)
-          (do
-            ; (L x y z , (x y z) 1 2 3)
-            ; (L x , (L y , (L z , (x y z))) 1 2 3)
-            ; this will also delay evaluating all multiple arguments at once
-            ; so tha tonly the left most argument and its value gets substituted
-            ; to the body first, then going deeper and deeper
-            (while args
-              (setv body (build-lambda [body] [(.pop args)])))
-            ; reduce re-created expression again
-            (beta-reduction* (extend body vals)))
-          ; when single argument expression is provided...
-          (do
-            ; substitute bound argument
-            (setv body
-              (substitute (first args) (first vals) body))
-            ; shift application arguments
-            (if (coll? body)
-              (setv body (shift-arguments body)))
-            ; for lists...
-            (if (coll? body)
-                ; if lambda expression
-                (if (L? body)
-                    (do (setv body (extend body free))
-                        (setv pp (extract-parts body))
-                        ; if evaluated expression has no further values, but also
-                        ; it is not a constant, render final form
-                        (if (and (empty? (:vals pp)) (not (empty? (:args pp))))
-                            (if (and (empty? free) (not (empty? args)) (empty? vals))
-                                (human-readable expr)
-                                (human-readable (if (empty? free) body expr)))
-                            ; else evaluate again but using helper because we know
-                            ; expression is lambda form
-                            (beta_reduction* body)))
-                    ; if original expression has no values, it was lambda expression and
-                    ; it had arguments, render final form
-                    (if (and (empty? vals) (L? expr) (not (empty? args)))
-                        (human-readable expr)
-                        ; else evaluate again using main redex
-                        (map beta-reduction (if (empty? free) body (extend [body] free)))))
-                ; render final form. here we want to return either
-                ; the body or the whole expression depending on args, vals and free variables
-                (human-readable
-                  (if args
-                    (if vals
-                      (if free
-                        (extend [body] free)
-                      body)
-                    expr)
-                  (if free (extend [body] free) body)))))))
+        ; if multiple arguments are provided then curry them
+        (if (> (len args) 1) (currying body args vals)
+            ; else either continue beta reduction to normal form
+            ; at this point there is only one argument and one parameter
+            ; and possibly extra free variables
+            (if vals (normal-form body (first args) (first vals) free)
+                ; or to head normal form:
+                ; (λ x . (λ y . (λ z . z 1))) -> (λ x . (λ y . 1))
+                (if args (build-lambda [(beta-reduction body)] args)
+                    (beta-reduction body)))))
 
-      ; main form beta / eta reduction steps
+      ; main form beta reduction steps
       (defn beta-reduction [expr]
         ; if the form (expr) is not a lambda form i.e. not starting with L
         ; we still want to seek if there are sub lambda expressions inside
-        ; (x (x (L x , x y))) should return (x (x y))
-        ; also ((L x , e) 2) should return e
+        ; (x (x (λ x , x y))) should return (x (x y))
+        ; also ((λ x , e) 2) should return e
         (if (coll? expr)
           (setv expr (shift-arguments expr)))
         (if (L? expr)
-            (beta_reduction* expr)
+            (lambda-reduction expr)
             (if (coll? expr)
                 (map beta-reduction expr)
                 (human-readable expr))))
