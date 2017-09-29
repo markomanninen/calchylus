@@ -135,7 +135,8 @@
       ; ((λ x , x) a b) -> (λ x , x a b) -> (a b)
       ; ((TRUE) TRUE FALSE) -> (TRUE TRUE FALSE) -> TRUE
       ; this is required to convert and evaluate substituted function forms
-      ; (λ x y z , ((x) y z) TRUE a b) -> ((TRUE) a b) -> (TRUE a b) -> a
+      ; (λ x y z , ((x) y z) TRUE a b) -> ((TRUE) a b) -> (TRUE a b) ->
+      ; ((λ x y , x) a b) -> (λ x y , x a b) -> a
       (defn shift-arguments [expr]
         (if-not (coll? expr) expr
           (do
@@ -152,6 +153,7 @@
           self.generated_variable_name)
         (defn --eq-- [self x]
           (= x self.generated_variable_name)))
+
       ; is object a variable?
       ;(defn variable? [x] (instance? Variable x))
       ; p is extracted lambda expression
@@ -182,28 +184,34 @@
             expr))
 
       ; convert generated machine variable names to normal forms
-      (defn human-readable [expr]
-        (if-not ~alpha expr
-          (if (coll? expr) (map human_readable expr) expr)))
+      ; because of Variable class, this is done via it and pprint
+      ; utility at this moment
+      ;(defn human-readable [expr]
+      ;  (if-not ~alpha expr
+      ;    (if (coll? expr) (map human_readable expr) expr)))
+      (defn human-readable [expr] expr)
       ; either get the final reduced form or reduce more
       (defn render-or-reduce [expr body]
         (setv p (extract-parts body))
-          ; if evaluated expression has no further values, but also
-          ; it is not a constant, render the final form
-          (if (and (empty? (:vals p)) (not (empty? (:args p))))
-              (human-readable expr)
-              ; else evaluate again but using helper because we know
-              ; expression is lambda form
-              (lambda-reduction body)))
+        ; if evaluated expression has no further values, but also
+        ; it is not a constant, render the final form
+        (if (and (empty? (:vals p)) (not (empty? (:args p))))
+            (human-readable expr)
+            ; else evaluate again but using helper because we know
+            ; expression is lambda form
+            (lambda-reduction body)))
+
       ; substitute bound variable and parameter
       ; AND
       ; shift application arguments
       ; this means that function forms are translated from
       ; ((a) b) to (a b) which makes it possible to evaluate
       ; lambda expressions with less parentheses
-      (defn normal-form [body args vals free]
-        (setv body (shift-arguments (substitute args vals body))
+      (defn normal-form [body arg val free expr1]
+        ;(setv pr (% "%s[%s:=%s]" (tuple (map pprint (, body arg val)))))
+        (setv body (shift-arguments (substitute arg val body))
               expr (if free (extend [body] free) body))
+        ;(if arg (print (% "%s => %s => %s" (, (pprint expr1) pr (pprint expr)))))
         ; if body is still a list after substitution and shift
         (if (coll? body)
             ; and it is a lambda expression
@@ -214,6 +222,7 @@
             ; else render final form. return either the body or the
             ; whole expression depending on free parameters
             (human-readable expr)))
+
       ; (λ x y z , (x y z) 1 2 3)
       ; (λ x , (λ y , (λ z , (x y z))) 1 2 3)
       ; this will also delay evaluating all multiple arguments at once
@@ -224,6 +233,7 @@
           (setv body (build-lambda [body] [(.pop args)])))
         ; reduce re-created expression again
         (lambda-reduction (extend body vals)))
+
       ; this function assumes that expression is lambda one
       ; if not knowing, then beta-reduction should be used
       (defn lambda-reduction [expr]
@@ -238,7 +248,7 @@
             ; else either continue beta reduction to normal form
             ; at this point there is only one argument and one parameter
             ; and possibly extra free variables
-            (if vals (normal-form body (first args) (first vals) free)
+            (if vals (normal-form body (first args) (first vals) free expr)
                 ; or to head normal form:
                 ; (λ x . (λ y . (λ z . z 1))) -> (λ x . (λ y . 1))
                 (if args (build-lambda [(beta-reduction body)] args)
@@ -271,12 +281,14 @@
             ; this is not exactly included on lambda calculus but just a way
             ; to keep data types existing for hy and later usage
             expr))
+
       ; helper for macro-print
       (defn replace-with-acute [expr]
         ; change spaces to \space for better padding around symbols
         (setv expr (.replace (.replace (.replace (pprint expr) " " "\\ ") "\\ ^\\" "^") "(\\\ " "("))
         ; remove parentheses the outer-most parentheses
         (if (and (.startswith expr "(") (.endswith expr ")")) (cut expr 1 -1) expr))
+
       ; output expression in latex / mathjax format for pretty print in html documents
       (defn latex-output [expr &optional [size "large"] [result False]]
         ; add application closure for a moment
