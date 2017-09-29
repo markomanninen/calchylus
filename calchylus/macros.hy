@@ -12,7 +12,7 @@
       (setv
         forms ["CONST" "IDENT" "LET" "LET*"
                "TRUE" "FALSE" "NIL?" "is_NIL"
-               "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "EMPTY"
+               "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "EMPTY" "INDEX"
                "LIST" "LAST" "PREPEND" "APPEND" "EXTEND" "LEN" "EMPTY?" "is_EMPTY"
                "FOLD-LEFT" "FOLD-RIGHT" "MAP" "APPLY" "REVERSE" "LIST*"
                "NUM" "ZERO" "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
