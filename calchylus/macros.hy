@@ -2,6 +2,7 @@
 ;--------------------------------
 ; Lambda calculus custom macros
 ;--------------------------------
+
 (defmacro init-macros [lambdachr separator]
 
   `(do
@@ -105,7 +106,7 @@
     ; append n to the end of the list, i.e. change (PAIR m (PAIR NIL NIL)) to
     ; (PAIR m (PAIR n (PAIR NIL NIL)))
     (defmacro APPEND [n l &rest args]
-      `(L , ~(append* n l) ~@args))
+      `(~lambdachr ~separator ~(append* n l) ~@args))
     ; lambda form macro generator
     (defmacro macro-form [form body]
       `(do
@@ -137,7 +138,7 @@
       `(~lambdachr a b s ~separator (s a b)))
     ; last item of the nested lists should be nil
     (macro-form NIL
-      `(L x , TRUE))
+      `(~lambdachr x ~separator TRUE))
     ; empty last entry of the list
     (macro-form EMPTY
       `(PAIR NIL NIL))
