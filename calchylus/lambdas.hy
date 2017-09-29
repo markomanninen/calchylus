@@ -27,19 +27,19 @@
 ; Licence: MIT
 ;----------------------------------------------
 
-(defmacro with-alpha-conversion-and-macros [lambdachr separator]
-   `(init-system ~lambdachr ~separator True True))
+(defmacro with-alpha-conversion-and-macros [lambdachr separator &optional [redex False]]
+   `(init-system ~lambdachr ~separator True True ~redex))
 
-(defmacro with-alpha-conversion-nor-macros [lambdachr separator]
-   `(init-system ~lambdachr ~separator False False))
+(defmacro with-alpha-conversion-nor-macros [lambdachr separator &optional [redex False]]
+   `(init-system ~lambdachr ~separator False False ~redex))
 
-(defmacro with-alpha-conversion [lambdachr separator]
-   `(init-system ~lambdachr ~separator True False))
+(defmacro with-alpha-conversion [lambdachr separator &optional [redex False]]
+   `(init-system ~lambdachr ~separator True False ~redex))
 
-(defmacro with-macros [lambdachr separator]
-   `(init-system ~lambdachr ~separator False True))
+(defmacro with-macros [lambdachr separator &optional [redex False]]
+   `(init-system ~lambdachr ~separator False True ~redex))
 
-(defmacro init-system [lambdachr separator alpha macros]
+(defmacro init-system [lambdachr separator alpha macros redex]
 
   `(do
     (try (do (import IPython)
@@ -52,7 +52,11 @@
       (setv ; lambda expression macro name
             lambdachr '~lambdachr
             ; lambda expression argument and body separator
-            separator '~separator)
+            separator '~separator
+            ; should we collect forms of the evaluation process
+            redex? ~redex
+            ; collection of reduced forms on the evaluation process
+            redexes [])
 
       ; pretty print utility
       (defn pprint [expr]
@@ -207,22 +211,32 @@
       ; this means that function forms are translated from
       ; ((a) b) to (a b) which makes it possible to evaluate
       ; lambda expressions with less parentheses
-      (defn normal-form [body arg val free expr1]
-        ;(setv pr (% "%s[%s:=%s]" (tuple (map pprint (, body arg val)))))
+      (defn normal-form [body arg val free parent]
+        (if redex? (setv pr (% "%s[%s:=%s]" (tuple (map pprint (, body arg val))))))
         (setv body (shift-arguments (substitute arg val body))
               expr (if free (extend [body] free) body))
-        ;(if arg (print (% "%s => %s => %s" (, (pprint expr1) pr (pprint expr)))))
+        (if (and redex? arg) (.append redexes (% "%s → %s" (, (pprint parent) pr))))
         ; if body is still a list after substitution and shift
         (if (coll? body)
             ; and it is a lambda expression
             (if (L? body)
                 (render-or-reduce expr (extend body free))
                 ; else evaluate again using main redex function
-                (map beta-reduction expr))
+                (do
+                  (if redex? (.append redexes (% "%s " (pprint expr))))
+                  (map beta-reduction expr)))
             ; else render final form. return either the body or the
             ; whole expression depending on free parameters
             (human-readable expr)))
 
+      ; head normal form
+      ; when normal form has been achieved, the body of the application
+      ; can still have reducible expressions
+      ; ; (λ x . (λ y . (λ z . z 1))) -> (λ x . (λ y . 1))
+      (defn head-normal-form [body args vals parent]
+        (if (and redex? args) (.append redexes (% "%s ← %s " (, (pprint parent) (pprint body)))))
+        (if args (build-lambda [(beta-reduction body)] args)
+            (beta-reduction body)))
       ; (λ x y z , (x y z) 1 2 3)
       ; (λ x , (λ y , (λ z , (x y z))) 1 2 3)
       ; this will also delay evaluating all multiple arguments at once
@@ -247,14 +261,13 @@
         (if (> (len args) 1) (currying body args vals)
             ; else either continue beta reduction to normal form
             ; at this point there is only one argument and one parameter
-            ; and possibly extra free variables
+            ; and possibly extra free variables. this causes normal order reduction
+            ; contra to applicative order where parameters are reduced first
             (if vals (normal-form body (first args) (first vals) free expr)
-                ; or to head normal form:
-                ; (λ x . (λ y . (λ z . z 1))) -> (λ x . (λ y . 1))
-                (if args (build-lambda [(beta-reduction body)] args)
-                    (beta-reduction body)))))
+                ; or continue reducing to head normal form
+                (head-normal-form body args vals expr))))
 
-      ; main form beta reduction steps
+      ; main beta reduction steps
       (defn beta-reduction [expr]
         ; if the form (expr) is not a lambda form i.e. not starting with L
         ; we still want to seek if there are sub lambda expressions inside
@@ -268,11 +281,14 @@
                 (map beta-reduction expr)
                 (human-readable expr))))
 
-      ; reformulate expression, because by using L macro, L is naturally left out from the expression
-      ; beta-reduction functions on the other hand relys on the L in the beginning of the expression!
-      ; then pass parameters and possibly expand macro form later
+      ; start evaluation of the lambda expression
       (defn evaluate-lambda-expression [expr]
+        ; delete previous redexes for latex print utility
+        (if redex? (del (cut redexes)))
+        ; reformulate expression, because by using L macro, L is naturally left out from the expression
+        ; beta-reduction functions on the other hand relys on the L in the beginning of the expression!
         (setv expr (hy.HyExpression (extend [lambdachr] expr)))
+        ; alpha convert and beta reduce
         (setv expr (beta-reduction (if ~alpha (alpha-conversion expr) expr)))
         (if (or (coll? expr) (symbol? expr))
             ; symbols and expression should be pretty "printed"
@@ -294,11 +310,15 @@
         ; add application closure for a moment
         (setv expr (extend '(APP) [expr]))
         ; add html linebreak for top padding, add $$ for mathjax rendering, use large font
-        (% "<br/>$$\\\\\%s %s\\\\$$"
+        (% "$$\\\\\%s %s$$"
           (, size (% "%s%s"
             (, (replace-with-acute (macro-expand expr))
               ; add result to the equation?
-              (if result (% "\\\\\%s=_{\\beta} \\\\\\%s %s" (, size size (replace-with-acute (eval expr)))) "")))))))
+              (do
+                (setv c (eval expr) re "")
+                (if redex? (setv re (.join "\\\\" (map replace-with-acute redexes))))
+                (if result (% "\\\\%s\\\\\%s =_{\\beta}\\\\\\%s %s"
+                (, re size size (replace-with-acute c))) ""))))))))
 
     ; lambda expression main macro
     (defmacro ~lambdachr [&rest expr]
