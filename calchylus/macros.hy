@@ -173,9 +173,9 @@
 		; length of the list
     (macro-form LEN
       `(YCOMB (~lambdachr f l ~separator (EMPTY? l ZERO (SUM ONE (f (TAIL l)))))))
-    ; (INDEX 1 (LIST ONE TWO THREE)) -> TWO
+    ; (INDEX ONE (LIST ONE TWO THREE)) -> TWO
     (macro-form INDEX
-      `(~lambdachr l i ~separator (HEAD (i TAIL l))))
+      `(~lambdachr i l ~separator (HEAD ((i TAIL) l))))
     ; (FOLD-LEFT SUM ZERO (LIST ONE TWO)) -> THREE
     (macro-form FOLD-LEFT
       `(YCOMB (~lambdachr g f e x ~separator (EMPTY? x e (g f (f e (HEAD x)) (TAIL x))))))
