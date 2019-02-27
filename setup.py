@@ -2,15 +2,15 @@ try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-import os
+import os, io
 
 #python setup.py sdist upload
 
-version = 'v0.1.13'
+version = 'v0.1.14'
 name = 'calchylus'
 
 def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname), encoding="utf8").read()
+    return io.open(os.path.join(os.path.dirname(__file__), fname), encoding="utf8").read()
 
 setup(
   name = name,
@@ -19,7 +19,7 @@ setup(
   package_data = {
     name: ['*.hy']
   },
-  install_requires = ['hy>=0.13.0'],
+  install_requires = ['hy==0.13.0'],
   version = version,
   description = 'Calchylus - Lambda Calculus with Hy',
   long_description = read('README'),

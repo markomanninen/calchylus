@@ -1,5 +1,8 @@
 #! /usr/bin/env hy
-; Lambda Calculus custom macros
+;--------------------------------
+; Lambda calculus custom macros
+;--------------------------------
+
 (defmacro init-macros [lambdachr separator]
 
   `(do
