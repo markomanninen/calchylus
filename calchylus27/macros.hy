@@ -12,14 +12,14 @@
       (setv
         forms ["CONST" "IDENT" "LET" "LET*"
                "TRUE" "FALSE" "NIL?" "is_NIL"
-               "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "EMPTY"
+               "PAIR" "HEAD" "TAIL" "FIRST" "SECOND" "NIL" "EMPTY" "INDEX"
                "LIST" "LAST" "PREPEND" "APPEND" "EXTEND" "LEN" "EMPTY?" "is_EMPTY"
                "FOLD-LEFT" "FOLD-RIGHT" "MAP" "APPLY" "REVERSE" "LIST*"
                "NUM" "ZERO" "ONE" "TWO" "THREE" "FOUR" "FIVE" "SIX" "SEVEN" "EIGHT" "NINE" "TEN"
                "ZERO?" "is_ZERO" "NUM?" "is_NUM"
-               "LEQ?" "is_LEQ" "EQ?" "is_EQ"  "GEQ?" "is_GEQ" "GE?" "is_GE" "LE?" "is_LE"
+               "LEQ?" "is_LEQ" "EQ?" "is_EQ" "GEQ?" "is_GEQ" "GE?" "is_GE" "LE?" "is_LE"
                "COND" "AND" "OR" "NOT" "XOR" "IMP" "EQV"
-               "SUCC" "PRED"  "SUM" "SUB" "PROD" "EXP"
+               "SUCC" "PRED" "SUM" "SUB" "PROD" "EXP"
                "SELF" "YCOMB" "DO" "APP"
                "SUMMATION" "FACTORIAL" "FIBONACCI"])
         ; return reversed list rather than reverse in place
@@ -53,36 +53,35 @@
     ;--------------------------------
     ; special forms
     ;--------------------------------
-    ; LET, LET*, CONST, DO, APP
 		; named variables. multiple variables can be associated first, then the last expression is the body
 		; (LET a 1 b 2 (a b)) ->
-    ; (L a b p , (p a b) 1 2 (L a b , (a b))) -> (1 2)
+    ; (L a b , (a b) 1 2) -> (1 2)
     (defmacro LET [&rest args]
       ; all odd parameters except the last are argument names
       (setv x (if args (cut (cut args 0 (len args) 2) 0 -1) ())
             y (if args (cut args 1 (len args) 2) ())
             z (if args (last args) ()))
-      `(~lambdachr ~@x p ~separator (p ~@x) ~@y (~lambdachr ~@x ~separator ~z)))
+      (if args `(~lambdachr ~@x ~separator ~z ~@y)))
     ; same as LET but preceding variables are evaluated becore using on the body so that
     ; variables associated previously can be used on the later variables
     ; (LET* a 1 b a (a b)) ->
     ; (LET a 1 (LET b a (a b))) -> (1 1)
-    (defmacro LET* [&rest args]
+    (defmacro LET* [&rest code]
       (setv ; the last parameter in the expression is the body
-            expr `(LET ~(if args (last args) ()))
-            ; argument names are all odd except the last paramter
-            a (if args (cut (cut args 0 (len args) 2) 0 -1) ())
-            ; values are all even paramters
-            b (if args (cut args 1 (len args) 2) ()))
-      ; create nested LET clauses
-      (for [[x y] (zip a b)]
-        (setv expr `(LET ~x ~y ~expr)))
-      expr)
+            expr (if code (last code) ())
+            ; argument names are all odd except the last parameter
+            args (if code (cut (cut code 0 (len code) 2) 0 -1) ())
+            ; values are all even parameters
+            vals (if code (cut code 1 (len code) 2) ()))
+      ; create nested expressions but in reverse order
+      (for [[x y] (reverse (list (zip args vals)))]
+        (setv expr `(~lambdachr ~x ~separator ~expr ~y)))
+      (if args expr `(~lambdachr ~separator ~@code)))
     ; constant, takes the first argument as the name of the argument
     ; and the second argument as the function body
     ; when function is applied to any value, the static body will return be returned
     ; (L x , 1 2) -> 1
-    (defmacro CONST  [&rest args]
+    (defmacro CONST [&rest args]
       `(~lambdachr ~(first args) ~separator ~@(rest args)))
     ; do structure for imperative command sequences
     ; (DO (LET a 1) (LET b 2) (a b)) ->
@@ -102,12 +101,12 @@
     ; append item to the list
     ;(macro-form APPEND
     ;  `(~lambdachr a l f x ~separator (f a (l f x))))
-    ;(defmacro APPEND  [&rest args]
+    ;(defmacro APPEND [&rest args]
     ;  `(~lambdachr a l x ~separator (x a (l x)) ~@args))
     ; append n to the end of the list, i.e. change (PAIR m (PAIR NIL NIL)) to
     ; (PAIR m (PAIR n (PAIR NIL NIL)))
     (defmacro APPEND [n l &rest args]
-      `(L , ~(append* n l) ~@args))
+      `(~lambdachr ~separator ~(append* n l) ~@args))
     ; lambda form macro generator
     (defmacro macro-form [form body]
       `(do
@@ -118,49 +117,65 @@
         (defmacro ~form [&rest args] (extend ~body args))))
     ; lambda application wrapper. Y application sharp macro can also be used
     ; identically with APP macro
-    (macro-form APP    `(~lambdachr ~separator))
+    (macro-form APP
+      `(~lambdachr ~separator))
     ;--------------------------------
     ; basic forms
     ;--------------------------------
     ; identity, return passed argument as it is
-    (macro-form IDENT  `(~lambdachr a ~separator a))
+    (macro-form IDENT
+      `(~lambdachr a ~separator a))
     ; booleans
-    (macro-form TRUE   `(~lambdachr a b ~separator a))
-    (macro-form FALSE  `(~lambdachr a b ~separator b))
+    (macro-form TRUE
+      `(~lambdachr a b ~separator a))
+    (macro-form FALSE
+      `(~lambdachr a b ~separator b))
     ;--------------------------------
     ; list forms
     ;--------------------------------
     ; make a pair for list
-    (macro-form PAIR   `(~lambdachr a b s ~separator (s a b)))
+    (macro-form PAIR
+      `(~lambdachr a b s ~separator (s a b)))
     ; last item of the nested lists should be nil
-    (macro-form NIL    `(L x , TRUE))
+    (macro-form NIL
+      `(~lambdachr x ~separator TRUE))
     ; empty last entry of the list
-    (macro-form EMPTY  `(PAIR NIL NIL))
+    (macro-form EMPTY
+      `(PAIR NIL NIL))
     ; is empty list
-    (macro-form EMPTY? `(~lambdachr l ~separator ((TAIL l) (~lambdachr h t ~separator FALSE))))
+    (macro-form EMPTY?
+      `(~lambdachr l ~separator ((TAIL l) (~lambdachr h t ~separator FALSE))))
     ; first item of the list, used as the parent node of the list i.e. cons
-    (macro-form HEAD   `(~lambdachr s ~separator (s TRUE)))
+    (macro-form HEAD
+      `(~lambdachr s ~separator (s TRUE)))
     ; last item of the list, used as the parent node of the list i.e. cdr
-    (macro-form TAIL   `(~lambdachr s ~separator (s FALSE)))
+    (macro-form TAIL
+      `(~lambdachr s ~separator (s FALSE)))
 		; prepend to the beginning of the list
-		(macro-form PREPEND `(PAIR))
+		(macro-form PREPEND
+      `(PAIR))
     ; first item of the list, same as head or cons
-    (macro-form FIRST  `(HEAD))
+    (macro-form FIRST
+      `(HEAD))
     ; second item of the list, head of the tail
-    (macro-form SECOND `(~lambdachr l ~separator (HEAD (TAIL l))))
+    (macro-form SECOND
+      `(~lambdachr l ~separator (HEAD (TAIL l))))
     ; last item of the list
     (macro-form LAST
       `(YCOMB (~lambdachr f l ~separator
-          (COND (EMPTY? (TAIL l)) (HEAD l) (f (TAIL l))))))
+          (EMPTY? (TAIL l) (HEAD l) (f (TAIL l))))))
     ; NUM? any number from one and up or ZERO / FALSE
-    (macro-form NUM?   `(~lambdachr n ~separator (OR (NOT n) (n TRUE TRUE FALSE))))
+    (macro-form NUM?
+      `(~lambdachr n ~separator (OR (NOT n) (n TRUE TRUE FALSE))))
     ; is item empty / EMPTY?
-    (macro-form NIL?   `(~lambdachr s ~separator (s (~lambdachr a ~separator FALSE) TRUE)))
+    (macro-form NIL?
+      `(~lambdachr s ~separator (s (~lambdachr a ~separator FALSE) TRUE)))
 		; length of the list
     (macro-form LEN
-      `(YCOMB (~lambdachr f l ~separator (COND (EMPTY? l) ZERO (SUM ONE (f (TAIL l)))))))
-    ; (INDEX 1 (LIST ONE TWO THREE)) -> TWO
-    (macro-form INDEX  `(~lambdachr l i ~separator (HEAD (i TAIL l))))
+      `(YCOMB (~lambdachr f l ~separator (EMPTY? l ZERO (SUM ONE (f (TAIL l)))))))
+    ; (INDEX ONE (LIST ONE TWO THREE)) -> TWO
+    (macro-form INDEX
+      `(~lambdachr i l ~separator (HEAD ((i TAIL) l))))
     ; (FOLD-LEFT SUM ZERO (LIST ONE TWO)) -> THREE
     (macro-form FOLD-LEFT
       `(YCOMB (~lambdachr g f e x ~separator (EMPTY? x e (g f (f e (HEAD x)) (TAIL x))))))
@@ -184,27 +199,28 @@
     (macro-form EXTEND
       `(YCOMB (~lambdachr g a b ~separator (EMPTY? a b (PAIR (HEAD a) (g (TAIL a) b))))))
     ;--------------------------------
-    ; zero forms
-    ;--------------------------------
-    ; same as FALSE, but using same argument names here than in Church numerals
-    (macro-form ZERO   `(~lambdachr x y ~separator y))
-    (macro-form ZERO?  `(~lambdachr n ~separator (NIL? n)))
-    ;--------------------------------
     ; logic forms
     ;--------------------------------
-    (macro-form COND   `(~lambdachr p a b ~separator (p a b)))
-    ; (macro-form AND   `(~lambdachr a b , (a b a)))
-    (macro-form AND    `(~lambdachr a b ~separator (a b FALSE)))
-    ; (macro-form OR    `(~lambdachr a b , (a a b)))
-    (macro-form OR     `(~lambdachr a b ~separator (a TRUE b)))
-    ; (macro-form OR    `(~lambdachr p a b , (p b a))) ?
-    (macro-form NOT    `(~lambdachr p ~separator (p FALSE TRUE)))
+    (macro-form COND
+      `(~lambdachr p a b ~separator (p a b)))
+    ; (macro-form AND `(~lambdachr a b , (a b a)))
+    (macro-form AND
+      `(~lambdachr a b ~separator (a b FALSE)))
+    ; (macro-form OR `(~lambdachr a b , (a a b)))
+    (macro-form OR
+      `(~lambdachr a b ~separator (a TRUE b)))
+    ; (macro-form OR `(~lambdachr p a b , (p b a))) ?
+    (macro-form NOT
+      `(~lambdachr p ~separator (p FALSE TRUE)))
     ; exlusive or
-    (macro-form XOR    `(~lambdachr a b ~separator (a (NOT b) b)))
+    (macro-form XOR
+      `(~lambdachr a b ~separator (a (NOT b) b)))
     ; implication
-    (macro-form IMP    `(~lambdachr a b ~separator (OR (NOT a) b)))
+    (macro-form IMP
+      `(~lambdachr a b ~separator (OR (NOT a) b)))
     ; equivalence / xnor
-    (macro-form EQV    `(~lambdachr a b ~separator (NOT (XOR a b))))
+    (macro-form EQV
+      `(~lambdachr a b ~separator (NOT (XOR a b))))
     ; church number generator: (NUM 3) ; -> (L x y , (x (x (x y))))
     ; launch application: (NUM 3 a b) ; -> (a (a (a b)))
     (defmacro NUM [n &rest args]
@@ -223,44 +239,75 @@
     (macro-form EIGHT `(NUM 8))
     (macro-form NINE `(NUM 9))
     (macro-form TEN `(NUM 10))
+    ; to be used like: #ℕ17 / #ℕ 17 ->
+    ; (NUM 17) -> (L x , (L y , (x (x ..... (x y)))))
+    (defsharp ℕ [n] `(NUM ~n))
+    ;--------------------------------
+    ; zero forms
+    ;--------------------------------
+    ; same as FALSE, but using same argument names here than in Church numerals
+    (macro-form ZERO
+      `(~lambdachr x y ~separator y))
+    (macro-form ZERO?
+      `(~lambdachr n ~separator (NIL? n)))
     ;--------------------------------
     ; arithmetic forms
     ;--------------------------------
     ; next / successor = INC = ADD
-    (macro-form SUCC `(~lambdachr n x y ~separator (x (n x y))))
+    (macro-form SUCC
+      `(~lambdachr n x y ~separator (x (n x y))))
     ; previous / predecessor = DEC
     (macro-form PRED
       `(~lambdachr n x y ~separator (n (~lambdachr g h ~separator (h (g x))) (~lambdachr x ~separator y) IDENT)))
     ; sum (x+y) two numbers together
     ;(macro-form SUM `(L m n , (m SUCC n)))
-    (macro-form SUM  `(~lambdachr m n x y ~separator (m x (n x y))))
+    (macro-form SUM
+      `(~lambdachr m n x y ~separator (m x (n x y))))
     ; substract (x-y) two numbers from each other
-    (macro-form SUB  `(~lambdachr m n ~separator (m PRED n)))
+    (macro-form SUB
+      `(~lambdachr m n ~separator (m PRED n)))
     ; multiplication (x*y), product of two numbers
-    (macro-form PROD `(~lambdachr m n x y ~separator (m (n x) y)))
+    (macro-form PROD
+      `(~lambdachr m n x y ~separator (m (n x) y)))
     ; exponent (x^y)
-    (macro-form EXP  `(~lambdachr m n x y ~separator (n m x y)))
+    (macro-form EXP
+      `(~lambdachr m n x y ~separator (n m x y)))
     ; lesser or equals
-    (macro-form LEQ? `(~lambdachr m n ~separator (ZERO? (n PRED m))))
+    (macro-form LEQ?
+      `(~lambdachr m n ~separator (ZERO? (n PRED m))))
     ; equals
-    (macro-form EQ?  `(~lambdachr m n ~separator (AND (LEQ? m n) (LEQ? n m))))
+    (macro-form EQ?
+      `(~lambdachr m n ~separator (AND (LEQ? m n) (LEQ? n m))))
     ; greater
-    (macro-form GE?  `(~lambdachr m n ~separator (NOT (LEQ? m n))))
+    (macro-form GE?
+      `(~lambdachr m n ~separator (NOT (LEQ? m n))))
     ; greater or equals
-    (macro-form GEQ? `(~lambdachr m n ~separator (OR (GE? m n) (EQ? m n))))
+    (macro-form GEQ?
+      `(~lambdachr m n ~separator (OR (GE? m n) (EQ? m n))))
     ; lesser
-    (macro-form LE?  `(~lambdachr m n ~separator (NOT (GEQ? m n))))
+    (macro-form LE?
+      `(~lambdachr m n ~separator (NOT (GEQ? m n))))
     ; self application
-    (macro-form SELF `(~lambdachr f x ~separator (f f x)))
-    ; Y combinator
+    (macro-form SELF
+      `(~lambdachr f x ~separator (f f x)))
+    ; ϒ combinator
     (macro-form YCOMB
       `(~lambdachr f ~separator (~lambdachr x ~separator (f (x x)) (~lambdachr x ~separator (f (x x))))))
     ;--------------------------------
     ; math functions
     ;--------------------------------
-    ; summation function
-    (macro-form SUMMATION `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (ZERO? n) ZERO (SUM n (f f (PRED n))))) x)))
-    ; factorial function
-    (macro-form FACTORIAL `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (ZERO? n) ONE (PROD n (f f (PRED n))))) x)))
-    ; fibonacci function
-    (macro-form FIBONACCI `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (LEQ? n TWO) ONE (SUM (f f (PRED n)) (f f (PRED (PRED n)))))) x)))))
+    ; ∑ summation function
+    ;(macro-form SUMMATION `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (ZERO? n) ZERO (SUM n (f f (PRED n))))) x)))
+    (macro-form SUMMATION
+      `(~lambdachr x ~separator
+        (YCOMB (~lambdachr f n ~separator (ZERO? n ZERO (SUM n (f (PRED n))))) x)))
+    ; ∏ factorial function
+    ;(macro-form FACTORIAL `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (ZERO? n) ONE (PROD n (f f (PRED n))))) x)))
+    (macro-form FACTORIAL
+      `(~lambdachr x ~separator
+        (YCOMB (~lambdachr f n ~separator (ZERO? n ONE (PROD (f (PRED n)) n))) x)))
+    ; F/f fibonacci function
+    ;(macro-form FIBONACCI `(~lambdachr x ~separator (SELF (~lambdachr f n , (COND (LEQ? n TWO) ONE (SUM (f f (PRED n)) (f f (PRED (PRED n)))))) x)))
+    (macro-form FIBONACCI
+      `(~lambdachr x ~separator
+        (YCOMB (~lambdachr f n ~separator (LEQ? n TWO ONE (SUM (f (PRED n)) (f (PRED (PRED n)))))) x)))))

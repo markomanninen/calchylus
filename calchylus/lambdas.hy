@@ -73,8 +73,7 @@
       ; (index (, 1 2) 0) ; -> -1
       (defn index [l x]
         (try (.index l x)
-             (except [e [ValueError AttributeError]]
-               -1)))
+             (except [e [ValueError AttributeError]] -1)))
 
       ; extend and return list instead of .extend list in place
       ; provide a as a copy (.copy a) in cases where strange
@@ -94,17 +93,21 @@
         (extend [lambdachr] args [separator] body vals))
 
       ; get lambda expression parts
-      ; (λ x , (x x) y) -> body: (x x), args: (x), values (y), and params: ([x y])
+      ; (λ x , (x x) y) -> body: (x x), args: (x) and values (y)
+      ; (λ x (x x) y) without separator for single parameter expressions is fine too
       (defn extract-parts [expr]
-        (setv idx (index expr separator))
+        (setv idx (index expr separator)
+               lx (len expr))
         ; if separator index is less than expected, lambda expression is possibly malformed
-        (if (or (< idx 1) (< (len expr) (+ idx 2))) {:body None :args [] :vals [] :params []}
+        (if (< lx (+ idx 2)) {:body None :args [] :vals (,)}
             (do
-              (setv body (cut expr (inc idx))
-                    args (cut expr 1 idx)
-                    vals (tuple (rest body)))
-              ; return body, args, vals, and key-value pairs based on args-vals
-              {:body (first body) :args (list args) :vals vals :params (zip args vals)})))
+              ; short constant lambda form without separator (λ x 1) is supported
+              (setv ly (if (= lx 2) 1 2)
+                    ; lambda form without separator has index -1 which is handled both on body and args
+                    body (cut expr (if (= idx -1) ly (inc idx)))
+                    args (cut expr 1 (if (= idx -1) ly idx)))
+              ; return body, args, and vals
+              {:body (first body) :args (list args) :vals (tuple (rest body))})))
 
       ; substitute lambda sub expr(ession). it requires special handler
       ; because of variable shadowing and not-coll body
@@ -158,9 +161,7 @@
         (defn --eq-- [self x]
           (= x self.generated_variable_name)))
 
-      ; is object a variable?
-      ;(defn variable? [x] (instance? Variable x))
-      ; p is extracted lambda expression
+      ; p is an extracted lambda expression
       (defn alpha-conversion* [p]
         (setv body (:body p)
               args (:args p)
@@ -178,35 +179,23 @@
       ; without renaming this expression (λ x y , (x y) y z) would yield: (z z)
       ; but because arguments are renamed by gensym, expression will become
       ; (λ :x_1234 :y_1234 , (:x_1234 :y_1234) y z) and result corretly: (y z)
-      ; human-readable function can be used to turn expression back to normal form,
-      ; that is, if there are any lambda abstractions available in the expression
       (defn alpha-conversion [expr]
         (if (coll? expr)
             (if (L? expr)
               (alpha-conversion* (extract-parts expr))
-              ((type expr) (map alpha-conversion expr)))
-            expr))
+              ((type expr) (map alpha-conversion expr))) expr))
 
-      ; convert generated machine variable names to normal forms
-      ; because of Variable class, this is done via it and pprint
-      ; utility at this moment
-      ;(defn human-readable [expr]
-      ;  (if-not ~alpha expr
-      ;    (if (coll? expr) (map human_readable expr) expr)))
-      (defn human-readable [expr] expr)
       ; either get the final reduced form or reduce more
       (defn render-or-reduce [expr body]
         (setv p (extract-parts body))
         ; if evaluated expression has no further values, but also
         ; it is not a constant, render the final form
-        (if (and (empty? (:vals p)) (not (empty? (:args p))))
-            (human-readable expr)
+        (if (and (empty? (:vals p)) (not (empty? (:args p)))) expr
             ; else evaluate again but using helper because we know
             ; expression is lambda form
             (lambda-reduction body)))
 
-      ; substitute bound variable and parameter
-      ; AND
+      ; substitute bound variable and parameter AND
       ; shift application arguments
       ; this means that function forms are translated from
       ; ((a) b) to (a b) which makes it possible to evaluate
@@ -224,15 +213,12 @@
                 ; else evaluate again using main redex function
                 (do
                   (if redex? (.append redexes (% "%s " (pprint expr))))
-                  (map beta-reduction expr)))
-            ; else render final form. return either the body or the
-            ; whole expression depending on free parameters
-            (human-readable expr)))
+                  (map beta-reduction expr))) expr))
 
       ; head normal form
       ; when normal form has been achieved, the body of the application
       ; can still have reducible expressions
-      ; ; (λ x . (λ y . (λ z . z 1))) -> (λ x . (λ y . 1))
+      ; ; (λ x , (λ y , (λ z , z 1))) -> (λ x , (λ y , 1))
       (defn head-normal-form [body args vals parent]
         (if (and redex? args) (.append redexes (% "%s ← %s " (, (pprint parent) (pprint body)))))
         (if args (build-lambda [(beta-reduction body)] args)
@@ -240,7 +226,7 @@
       ; (λ x y z , (x y z) 1 2 3)
       ; (λ x , (λ y , (λ z , (x y z))) 1 2 3)
       ; this will also delay evaluating all multiple arguments at once
-      ; so tha tonly the left most argument and its value gets substituted
+      ; so that only the left most argument and its value gets substituted
       ; to the body first, then going deeper and deeper
       (defn currying [body args vals]
         (while args
@@ -254,16 +240,14 @@
         (setv p (extract-parts expr)
               body (:body p)
               args (:args p)
-              vals (:vals p)
-              ; rest of the free arguments that are not in params
-              free (list (drop (len args) vals)))
+              vals (:vals p))
         ; if multiple arguments are provided then curry them
         (if (> (len args) 1) (currying body args vals)
             ; else either continue beta reduction to normal form
             ; at this point there is only one argument and one parameter
             ; and possibly extra free variables. this causes normal order reduction
             ; contra to applicative order where parameters are reduced first
-            (if vals (normal-form body (first args) (first vals) free expr)
+            (if vals (normal-form body (first args) (first vals) (list (drop (len args) vals)) expr)
                 ; or continue reducing to head normal form
                 (head-normal-form body args vals expr))))
 
@@ -272,14 +256,15 @@
         ; if the form (expr) is not a lambda form i.e. not starting with L
         ; we still want to seek if there are sub lambda expressions inside
         ; (x (x (λ x , x y))) should return (x (x y))
-        ; also ((λ x , e) 2) should return e
+        ; ((λ x , e) 2) should return e
         (if (coll? expr)
           (setv expr (shift-arguments expr)))
         (if (L? expr)
             (lambda-reduction expr)
             (if (coll? expr)
-                (map beta-reduction expr)
-                (human-readable expr))))
+                (do
+                  (setv expr ((type expr) (map beta-reduction expr)))
+                  (if (and (coll? expr) (coll? (first expr))) (beta-reduction expr) expr)) expr)))
 
       ; start evaluation of the lambda expression
       (defn evaluate-lambda-expression [expr]
@@ -338,7 +323,7 @@
     (defsharp § [expr] `(defprint ~expr))
     ; output expression and its beta reduced form formatted by mathjax
     (defsharp ¤ [expr] `(defprint ~expr True))
-
+    ; include macros if required
     (if ~macros
       (do
          ; for some reason macros will be included even if this block
