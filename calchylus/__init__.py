@@ -16,8 +16,8 @@ def peval(tokens):
 
 def Y(tokens):
 	return heval("""
-(require (calchylus.lambdas [*]))
-(import (calchylus.lambdas [*]))
+(require [calchylus.lambdas [*]])
+(import [calchylus.lambdas [*]])
 (with-alpha-conversion-and-macros L ,)
 %s
 """ % tokens)

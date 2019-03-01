@@ -30,7 +30,7 @@
                 (extend (read-str (% "(PAIR %s)" x)) [l])
                 (if (= (first l) 'LIST)
                     (extend l [x])
-                    ((type l) (genexpr (append* x y) [y l]))))))
+                    ((type l) (gfor (append* x y) [y l]))))))
         ; expand custom lambda forms to the normal lambda forms
         ; (PAIR TRUE (PAIR TRUE NIL)) should become:
         ; (L a b s , (s a b) (L a b , a) (L a b s , (s a b) (L a b , a) (L a b , b)))
@@ -40,7 +40,7 @@
                   ; if the first symbol is a custom macro form, expand it by using internal macroexpand-1
                   (macro-expand (macroexpand-1 expr))
                   ; loop everything inside
-                  ((type expr) (genexpr (macro-expand x) [x expr])))
+                  ((type expr) (gfor (macro-expand x) [x expr])))
               (if (macro-form? expr)
                   ; plain macro names like TRUE will be reformed to (TRUE) so that they can be expanded
                   (macro-expand (read-str (% "(%s)" expr)))
