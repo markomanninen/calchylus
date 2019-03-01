@@ -56,7 +56,7 @@ For people willing to get hands quickly on coding:
 
 .. code-block:: bash
 
-	$ pip install hy calchylus
+	$ pip install calchylus
 
 **Open Hy**
 
@@ -84,14 +84,14 @@ For people willing to get hands quickly on coding:
 
 .. code-block:: hylang
 
-	(FIBONACCI SEVEN) ; output: (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
+	(FIBONACCI SEVEN x y) ; output: (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
 
 Explanation
 -----------
 
 ``calchylus`` module works in Windows, Linux, and MacOS operating systems.
-Python 2.7 or 3.6 and greater are required. The whole great Python ecosystem
+3.7 or greater is required. The whole great Python ecosystem
 can be installed from `Anaconda`_.
 
 Install Hy language interpreter and ``calchylus`` module by using ``pip``
@@ -99,7 +99,7 @@ Python package management tool:
 
 .. code-block:: bash
 
-	$ pip install hy calchylus
+	$ pip install calchylus
 
 Open Hy, since ``calchylus`` is mostly written as Hy macros:
 
@@ -146,7 +146,7 @@ Church numeral ``SEVEN`` and the ``FIBONACCI`` shorthands:
 
 .. code-block:: hylang
 
-	(FIBONACCI SEVEN)
+	(FIBONACCI SEVEN x y)
 
 |Output:|
 

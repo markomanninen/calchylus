@@ -56,7 +56,7 @@ For people willing to get hands quickly on coding:
 
 .. code-block:: bash
 
-	$ pip install hy calchylus
+	$ pip install calchylus
 
 **Open Hy**
 
@@ -84,7 +84,7 @@ For people willing to get hands quickly on coding:
 
 .. code-block:: hylang
 
-	(FIBONACCI SEVEN) ; output: (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
+	(FIBONACCI SEVEN x y) ; output: (x (x (x (x (x (x (x (x (x (x (x (x (x y)))))))))))))
 
 
 Documentation
