@@ -6,7 +6,7 @@ import os, io
 
 #python setup.py sdist upload
 
-version = 'v0.1.19'
+version = 'v0.1.20'
 name = 'calchylus'
 
 def read(fname):

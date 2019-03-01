@@ -132,7 +132,7 @@
             ; if e is lambda expression, call special handler
             (if (L? expr) (substitute* a b (extract-parts expr))
                 ; else substitute all sub expressions
-                ((type expr) (gfor (substitute a b e) [e expr])))
+                ((type expr) (gfor e expr (substitute a b e))))
             ; return substitute (b), if match is found
             (if (= a expr) b expr)))
 
