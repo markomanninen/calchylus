@@ -62,10 +62,9 @@
       (defn pprint [expr]
         (if-not (coll? expr) (str expr)
           (do
-            ; see if there is an additional wrapper on application
-            ; we don't need to show it...
-            (setv p (extract-parts expr)
-                  expr (if (or (none? (:body p)) (:args p)) expr (:body p)))
+            (if (L? expr)
+                (setv p (extract-parts expr)
+                      expr (if (or (none? (:body p)) (:args p)) expr (:body p))))
             ; add support for escaped dot syntax
             (% "(%s)" (.replace (.join " " (map pprint expr)) "\." ".")))))
 
@@ -83,8 +82,7 @@
 
       ; is expr(ession) a lambda expression i.e. starts with lambdachr: (λ ...)?
       (defn L? [expr]
-        (and (coll? expr)
-             expr ; not empty
+        (and (coll? expr) expr ; not empty
              (symbol? (first expr))
              (= (first expr) lambdachr)))
 
@@ -213,7 +211,7 @@
                 ; else evaluate again using main redex function
                 (do
                   (if redex? (.append redexes (% "%s " (pprint expr))))
-                  (map beta-reduction expr))) expr))
+                  ((type expr) (map beta-reduction expr)))) expr))
 
       ; head normal form
       ; when normal form has been achieved, the body of the application
@@ -326,7 +324,6 @@
     ; include macros if required
     (if ~macros
       (do
-         ; for some reason macros will be included even if this block
-         ; is not reached runtime...
+         ; actually macros will be included even if this block is not reached at runtime...
          (require [calchylus.macros [*]])
          (init-macros ~lambdachr ~separator)))))
