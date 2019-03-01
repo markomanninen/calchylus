@@ -256,13 +256,11 @@
         ; (x (x (λ x , x y))) should return (x (x y))
         ; ((λ x , e) 2) should return e
         (if (coll? expr)
-          (setv expr (shift-arguments expr)))
-        (if (L? expr)
-            (lambda-reduction expr)
-            (if (coll? expr)
-                (do
-                  (setv expr ((type expr) (map beta-reduction expr)))
-                  (if (and (coll? expr) (coll? (first expr))) (beta-reduction expr) expr)) expr)))
+          (do
+            (setv expr (shift-arguments expr))
+            (if (L? expr)
+                (lambda-reduction expr)
+                ((type expr) (map beta-reduction expr)))) expr))
 
       ; start evaluation of the lambda expression
       (defn evaluate-lambda-expression [expr]
@@ -273,13 +271,14 @@
         (setv expr (hy.HyExpression (extend [lambdachr] expr)))
         ; alpha convert and beta reduce
         (setv expr (beta-reduction (if ~alpha (alpha-conversion expr) expr)))
-        (if (or (coll? expr) (symbol? expr))
+        (if (coll? expr)
             ; symbols and expression should be pretty "printed"
-            (pprint expr)
+            (pprint (beta-reduction expr))
+            (if (symbol? expr) (pprint expr)
             ; numbers for example get passed as they are
             ; this is not exactly included on lambda calculus but just a way
             ; to keep data types existing for hy and later usage
-            expr))
+            expr)))
 
       ; helper for macro-print
       (defn replace-with-acute [expr]
