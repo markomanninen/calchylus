@@ -44,8 +44,8 @@
   `(do
     (try (do (import IPython)
       (if (in 'display (.__dir__ IPython))
-        (import (IPython.display [HTML]))))
-      (except (e Exception)))
+        (import [IPython.display [HTML]])))
+      (except [e Exception]))
 
     (eval-and-compile
 
@@ -309,17 +309,17 @@
         (try
           (evaluate-lambda-expression (if ~macros (macro-expand expr) expr))
           (except [e [RecursionError hy.errors.HyMacroExpansionError]]
-            (print "Recursion error occured for lambda expression: " (pprint expr))))))
+            (print e " -> " expr)))))
 
-    ; lambda application sharp macro
-    (defsharp Ÿ [expr] `(~lambdachr ~separator ~expr))
+    ; lambda application tag macro
+    (deftag Ÿ [expr] `(~lambdachr ~separator ~expr))
     ; output expression formatted by mathjax
     (defmacro defprint [expr &optional [result False] [size "large"]]
       `(HTML ~(latex-output expr :size size :result result)))
     ; output expression formatted by mathjax with default settings
-    (defsharp § [expr] `(defprint ~expr))
+    (deftag § [expr] `(defprint ~expr))
     ; output expression and its beta reduced form formatted by mathjax
-    (defsharp ¤ [expr] `(defprint ~expr True))
+    (deftag ¤ [expr] `(defprint ~expr True))
     ; include macros if required
     (if ~macros
       (do

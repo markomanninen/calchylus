@@ -6,7 +6,7 @@ import os, io
 
 #python setup.py sdist upload
 
-version = 'v0.1.17'
+version = 'v0.1.18'
 name = 'calchylus'
 
 def read(fname):
@@ -19,7 +19,7 @@ setup(
   package_data = {
     name: ['*.hy']
   },
-  install_requires = ['hy==0.13.0'],
+  install_requires = ['hy==0.16.0'],
   version = version,
   description = 'Calchylus - Lambda Calculus with Hy',
   long_description = read('README'),

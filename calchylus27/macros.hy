@@ -4,11 +4,8 @@
 ;--------------------------------
 
 (defmacro init-macros [lambdachr separator]
-
   `(do
-
     (eval-and-compile
-
       (setv
         forms ["CONST" "IDENT" "LET" "LET*"
                "TRUE" "FALSE" "NIL?" "is_NIL"
@@ -115,7 +112,7 @@
         ;(.append forms (hy.HySymbol ~(name form)))
         (setv forms (extend forms (, ~(name form))))
         (defmacro ~form [&rest args] (extend ~body args))))
-    ; lambda application wrapper. Y application sharp macro can also be used
+    ; lambda application wrapper. Y application tag macro can also be used
     ; identically with APP macro
     (macro-form APP
       `(~lambdachr ~separator))
@@ -241,7 +238,7 @@
     (macro-form TEN `(NUM 10))
     ; to be used like: #ℕ17 / #ℕ 17 ->
     ; (NUM 17) -> (L x , (L y , (x (x ..... (x y)))))
-    (defsharp ℕ [n] `(NUM ~n))
+    (deftag ℕ [n] `(NUM ~n))
     ;--------------------------------
     ; zero forms
     ;--------------------------------
