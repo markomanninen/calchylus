@@ -6,7 +6,7 @@ import os, io
 
 #python setup.py sdist upload
 
-version = 'v0.1.21'
+version = 'v0.1.22'
 name = 'calchylus'
 
 def read(fname):
@@ -14,7 +14,7 @@ def read(fname):
 
 setup(
   name = name,
-  packages = [name],
+  packages = [name, 'calchylus2'],
   package_dir = {name: name},
   package_data = {
     name: ['*.hy']
