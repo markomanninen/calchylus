@@ -3,6 +3,8 @@
 ; Lambda calculus custom macros
 ;--------------------------------
 
+(import hy)
+
 (defmacro init-macros [binder]
   `(do
     (eval-and-compile
@@ -66,51 +68,6 @@
           (do (setv x (n 1 0))
             (if (numeric? x) x
               (sum (flatten x)))))
-
-        ; get church number by calling SUCC as many times as given in the argument
-        (defn N [m]
-          (setv n ZERO)
-          (while (pos? m)
-            (setv n (SUCC n) m (dec m))) n)
-
-        (defn FLAT [l]
-          (while (not (MUN (EMPTY? l)))
-            (do (yield (FIRST l))
-                (setv l (TAIL l)))))
-
-        (defn LIST [&rest args]
-          (reduce (fn [y x] (PAIR x y)) (reverse (list args)) EMPTY))
-
-        (defn NM [n &optional [m FALSE]]
-          (while (> n 0)
-            (setv n (dec n) m (SUCC m))) m)
-
-        ; integers
-        ; -4 -> (PAIR FALSE FOUR)
-        (defmacro ℤ+ [number] `(PAIR TRUE #ℕ ~number))
-        (defmacro ℤ- [number] `(PAIR FALSE #ℕ ~number))
-        (deftag ℤ [number] (if (pos? number) `(ℤ+ ~number) `(ℤ- ~number)))
-
-        ; rational numbers
-        ; -1/7 -> (PAIR FALSE (PAIR ONE SEVEN))
-        (defmacro ℚ+ [number] `(PAIR TRUE (PAIR #ℕ ~(second number) #ℕ ~(last number))))
-        (defmacro ℚ- [number] `(PAIR FALSE (PAIR #ℕ ~(second number) #ℕ ~(last number))))
-        (deftag ℚ [number]
-          `(PAIR (if (pos? ~number) TRUE FALSE)
-            (PAIR #ℕ ~(second number) #ℕ ~(last number))))
-
-        ; imaginary numbers
-        ; #ℂ-0.5+2j -> (PAIR (PAIR FALSE (PAIR ONE TWO)) (PAIR TRUE (PAIR TWO ONE)))
-        (deftag ℂ [number]
-          (import [fractions [Fraction]])
-          (setv real (Fraction (abs number.real))
-               imag (Fraction (abs number.imag)))
-          `(do
-            (PAIR
-              (PAIR (if (pos? ~number.real) TRUE FALSE)
-                (PAIR (NUM ~real.numerator) (NUM ~real.denominator)))
-              (PAIR (if (pos? ~number.imag) TRUE FALSE)
-                (PAIR (NUM ~imag.numerator) (NUM ~imag.denominator))))))
 
         (setv ; https://en.wikipedia.org/wiki/SKI_combinator_calculus
              ; S = apply x to y in the domain of z
@@ -197,8 +154,54 @@
              PREPEND PAIR
              FIRST HEAD
              SECOND (~binder l (HEAD (TAIL l)))
-             THIRD (~binder l (HEAD (TAIL (TAIL l))))
+             THIRD (~binder l (HEAD (TAIL (TAIL l)))))
 
+        ; get church number by calling SUCC as many times as given in the argument
+        (defn N [m]
+          (setv n ZERO)
+          (while (pos? m)
+            (setv n (SUCC n) m (dec m))) n)
+
+        (defn FLAT [l]
+          (while (not (MUN (EMPTY? l)))
+            (do (yield (FIRST l))
+                (setv l (TAIL l)))))
+
+        (defn LIST [&rest args]
+          (reduce (fn [y x] (PAIR x y)) (reverse (list args)) EMPTY))
+
+        (defn NM [n &optional [m FALSE]]
+          (while (> n 0)
+            (setv n (dec n) m (SUCC m))) m)
+
+        ; integers
+        ; -4 -> (PAIR FALSE FOUR)
+        (defmacro ℤ+ [number] `(PAIR TRUE #ℕ ~number))
+        (defmacro ℤ- [number] `(PAIR FALSE #ℕ ~number))
+        (deftag ℤ [number] (if (pos? number) `(ℤ+ ~number) `(ℤ- ~number)))
+
+        ; rational numbers
+        ; -1/7 -> (PAIR FALSE (PAIR ONE SEVEN))
+        (defmacro ℚ+ [number] `(PAIR TRUE (PAIR #ℕ ~(second number) #ℕ ~(last number))))
+        (defmacro ℚ- [number] `(PAIR FALSE (PAIR #ℕ ~(second number) #ℕ ~(last number))))
+        (deftag ℚ [number]
+          `(PAIR (if (pos? ~number) TRUE FALSE)
+            (PAIR #ℕ ~(second number) #ℕ ~(last number))))
+
+        ; imaginary numbers
+        ; #ℂ-0.5+2j -> (PAIR (PAIR FALSE (PAIR ONE TWO)) (PAIR TRUE (PAIR TWO ONE)))
+        (deftag ℂ [number]
+          (import [fractions [Fraction]])
+          (setv real (Fraction (abs number.real))
+               imag (Fraction (abs number.imag)))
+          `(do
+            (PAIR
+              (PAIR (if (pos? ~number.real) TRUE FALSE)
+                (PAIR (NUM ~real.numerator) (NUM ~real.denominator)))
+              (PAIR (if (pos? ~number.imag) TRUE FALSE)
+                (PAIR (NUM ~imag.numerator) (NUM ~imag.denominator))))))
+
+        (setv ; self referential combinators
              SELF (~binder f x [f f x])
              YCOMB (~binder f [(~binder x [x x]) (~binder y [f [y y]])])
 
@@ -254,5 +257,4 @@
              ; compute real digits, decimal expansion by: numerator denominator number-base limit
              ; (DIGITS (NUM 1) (NUM 7) (NUM 10) (NUM 6)) -> 0 1 4 2 8 5 7
              DIGITS (~binder l m n o [YCOMB (~binder f p q
-                      (ZERO? q EMPTY (PAIR (HEAD p) [f [DIV (PROD (TAIL p) n) m] (PRED q)]))) [DIV l m] o])
-))))
+                      (ZERO? q EMPTY (PAIR (HEAD p) [f [DIV (PROD (TAIL p) n) m] (PRED q)]))) [DIV l m] o])))))

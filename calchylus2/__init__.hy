@@ -1,3 +1,5 @@
 #! /usr/bin/env hy
 
-(setv __version__ "v0.1.23")
+(import hy)
+
+(setv __version__ "v0.1.24")

@@ -31,6 +31,8 @@
 ; Copyright: Marko Manninen (c) 2019
 ; Licence: MIT
 ;----------------------------------------------
+(import hy)
+
 (defmacro with-macros [binder &optional [delimitter ""]]
   `(do
     (init-system ~binder ~delimitter)
