@@ -6,11 +6,11 @@ import os, io
 
 #python setup.py sdist upload
 
-version = 'v0.1.20'
+version = 'v0.1.21'
 name = 'calchylus'
 
 def read(fname):
-    return io.open(os.path.join(os.path.dirname(__file__), fname), encoding="utf8").read()
+  return io.open(os.path.join(os.path.dirname(__file__), fname), encoding="utf8").read()
 
 setup(
   name = name,
