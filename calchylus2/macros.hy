@@ -59,7 +59,7 @@
         ; natural numbers
         ; ONE -> (L x y (x y))
         (defmacro ℕ+ [number] `(NUM ~(abs number)))
-        (defsharp ℕ [number] `(ℕ+ ~number))
+        (deftag ℕ [number] `(ℕ+ ~number))
 
         ; church natural number to native the native one
         (defn MUN [n]
@@ -87,21 +87,21 @@
 
         ; integers
         ; -4 -> (PAIR FALSE FOUR)
-        (defmacro ℤ+ [number] `(PAIR TRUE #ℕ~number))
-        (defmacro ℤ- [number] `(PAIR FALSE #ℕ~number))
-        (defsharp ℤ [number] (if (pos? number) `(ℤ+ ~number) `(ℤ- ~number)))
+        (defmacro ℤ+ [number] `(PAIR TRUE #ℕ ~number))
+        (defmacro ℤ- [number] `(PAIR FALSE #ℕ ~number))
+        (deftag ℤ [number] (if (pos? number) `(ℤ+ ~number) `(ℤ- ~number)))
 
         ; rational numbers
         ; -1/7 -> (PAIR FALSE (PAIR ONE SEVEN))
-        (defmacro ℚ+ [number] `(PAIR TRUE (PAIR #ℕ~(second number) #ℕ~(last number))))
-        (defmacro ℚ- [number] `(PAIR FALSE (PAIR #ℕ~(second number) #ℕ~(last number))))
-        (defsharp ℚ [number]
+        (defmacro ℚ+ [number] `(PAIR TRUE (PAIR #ℕ ~(second number) #ℕ ~(last number))))
+        (defmacro ℚ- [number] `(PAIR FALSE (PAIR #ℕ ~(second number) #ℕ ~(last number))))
+        (deftag ℚ [number]
           `(PAIR (if (pos? ~number) TRUE FALSE)
-            (PAIR #ℕ~(second number) #ℕ~(last number))))
+            (PAIR #ℕ ~(second number) #ℕ ~(last number))))
 
         ; imaginary numbers
         ; #ℂ-0.5+2j -> (PAIR (PAIR FALSE (PAIR ONE TWO)) (PAIR TRUE (PAIR TWO ONE)))
-        (defsharp ℂ [number]
+        (deftag ℂ [number]
           (import [fractions [Fraction]])
           (setv real (Fraction (abs number.real))
                imag (Fraction (abs number.imag)))
