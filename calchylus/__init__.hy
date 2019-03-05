@@ -18,7 +18,7 @@
 ; (with-alpha-conversion-and-macros L ,)
 ;
 ; Use:
-; (λ x y , (x (x y)) a b) ->
+; (L x y , (x (x y)) a b) ->
 ; (a (a b))
 ;
 ; Documentation: http://calchylus.readthedocs.io/
@@ -27,4 +27,4 @@
 ; Licence: MIT
 ;----------------------------------------------
 
-(setv __version__ "v0.1.24")
+(setv __version__ "v0.1.25")

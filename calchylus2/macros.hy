@@ -3,14 +3,9 @@
 ; Lambda calculus custom macros
 ;--------------------------------
 
-(import hy)
-
 (defmacro init-macros [binder]
   `(do
     (eval-and-compile
-      ;(setv
-      ;  forms ["LET" "LET*" "DO" "CONST"])
-
         ; named variables. multiple variables can be associated first, then the last expression is the body
         ; (LET a 1 b 2 (a b)) ->
         ; ((L a b (a b)) 1 2)

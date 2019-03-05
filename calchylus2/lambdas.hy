@@ -13,6 +13,7 @@
 ;
 ; Import library:
 ; (require [calchylus2.lambdas [*]])
+; (import [calchylus2.lambdas [*]])
 ;
 ; Initialize with macros:
 ; (with-macros λ)
@@ -31,7 +32,6 @@
 ; Copyright: Marko Manninen (c) 2019
 ; Licence: MIT
 ;----------------------------------------------
-(import hy)
 
 (defmacro with-macros [binder &optional [delimitter ""]]
   `(do
